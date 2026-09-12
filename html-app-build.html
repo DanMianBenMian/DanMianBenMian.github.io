@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Html App Build · 单面本面</title>
+<meta name="description" content="Html App Build —— 把 TurboWarp / 图形化编程作品一键打包成 iOS 和 Android 原生 App 的桌面工具。">
+<meta name="theme-color" content="#05070f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --accent:#22d3ee;
+    --accent2:#a78bfa;
+    --text:#c9d1d9;
+    --dim:#7d8ba5;
+    --panel:rgba(20,28,46,.66);
+    --line:rgba(34,211,238,.22);
+    --maxw:900px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:#05070f;color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+    line-height:1.8;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
+      radial-gradient(120% 90% at 50% -10%,#1a2540 0%,#0c1120 55%,#05070f 100%)}
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
+  .orb.a{width:420px;height:420px;background:#22d3ee;top:-120px;left:-90px;animation:float1 22s ease-in-out infinite}
+  .orb.b{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation:float2 26s ease-in-out infinite}
+  @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+  @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
+
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(5,7,15,.72);border-bottom:1px solid rgba(34,211,238,.14)}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#eafcff;letter-spacing:.5px;text-decoration:none}
+  .brand svg{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+  .nav .links{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .nav a{color:var(--dim);text-decoration:none;transition:color .2s}
+  .nav a:hover{color:var(--accent)}
+
+  section{max-width:var(--maxw);margin:0 auto;padding:60px 20px}
+  .hero{padding-top:70px;padding-bottom:30px}
+  .tagline{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:12px}
+  .hero h1{font-size:clamp(34px,8vw,56px);line-height:1.15;font-weight:800;letter-spacing:1px;
+    background:linear-gradient(100deg,#eafcff 0%,var(--accent) 45%,var(--accent2) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 22px rgba(34,211,238,.26))}
+  .hero p.lead{margin-top:18px;font-size:16px;color:var(--dim);max-width:640px}
+  .hero p.lead b{color:var(--text);font-weight:600}
+
+  h2{font-size:20px;color:#eafcff;margin:46px 0 20px;display:flex;align-items:center;gap:11px}
+  h2::before{content:"";width:4px;height:19px;border-radius:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.7)}
+  p.body{font-size:14.5px;color:var(--dim);max-width:680px}
+  p.body b{color:var(--text);font-weight:600}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:6px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;
+    transition:transform .2s,border-color .25s,box-shadow .3s}
+  .card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.55);box-shadow:0 14px 34px rgba(3,8,20,.7)}
+  .card .n{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:1px}
+  .card h3{font-size:16px;color:#eafcff;margin:8px 0 8px}
+  .card p{font-size:13.5px;color:var(--dim)}
+
+  ol.steps{counter-reset:s;list-style:none;padding:0;margin-top:6px;max-width:680px}
+  ol.steps li{position:relative;padding:12px 0 12px 46px;border-bottom:1px dashed rgba(34,211,238,.14);font-size:14.5px;color:var(--dim)}
+  ol.steps li:last-child{border-bottom:none}
+  ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:11px;
+    width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;color:#eafcff;
+    background:linear-gradient(140deg,rgba(34,211,238,.18),rgba(167,139,250,.18));border:1px solid var(--line)}
+  ol.steps li b{color:var(--text);font-weight:600}
+
+  .note{margin-top:14px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.28);
+    border-radius:12px;padding:16px 18px;font-size:13.5px;color:#cbbdf2;max-width:680px}
+  .note b{color:#e6dcff}
+
+  /* ---------- 下载 ---------- */
+  .dl{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+    background-image:linear-gradient(140deg,rgba(34,211,238,.10),transparent 60%)}
+  .dl .meta{flex:1;min-width:220px}
+  .dl .meta .name{font-size:18px;color:#eafcff;font-weight:700}
+  .dl .meta .sub{font-size:13px;color:var(--dim);margin-top:6px}
+  .btn{padding:13px 26px;border-radius:11px;text-decoration:none;font-size:15px;font-weight:700;
+    transition:transform .18s,box-shadow .25s,background .25s;display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
+  .btn.primary{background:linear-gradient(90deg,#1b8fb3,#6d4fc4);color:#eafcff;border:1px solid #5fe9ff}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(34,211,238,.45)}
+  .btn.green{background:linear-gradient(90deg,#1f9d5a,#15b06a);color:#eafff3;border:1px solid #4be39a}
+  .btn.green:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(63,185,80,.4)}
+
+  footer{border-top:1px solid rgba(34,211,238,.12);margin-top:40px}
+  footer .inner{max-width:var(--maxw);margin:0 auto;padding:26px 20px;
+    font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center}
+  footer a{color:var(--dim);text-decoration:none}
+  footer a:hover{color:var(--accent)}
+  .wx{color:#c9d1d9}
+  .wx b{color:#eafcff;font-family:"SFMono-Regular",Consolas,Menlo,monospace;letter-spacing:1px}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.on{opacity:1;transform:none}
+  @media (max-width:620px){
+    section{padding:46px 18px}
+    .nav .links{gap:14px;font-size:13px}
+    .dl{padding:20px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"><div class="orb a"></div><div class="orb b"></div></div>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="#22d3ee" stroke-width="2.6"/>
+        <path d="M16 3a13 13 0 0 0 0 26z" fill="#a78bfa"/>
+      </svg>
+      单面本面
+    </a>
+    <div class="links">
+      <a href="index.html">主页</a>
+      <a href="#download">下载</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ================= Hero ================= -->
+  <section class="hero">
+    <div class="tagline">DESKTOP TOOL · 图形化编程 → 原生 App</div>
+    <h1>Html App Build</h1>
+    <p class="lead">
+      一个 <b>Windows 桌面小工具</b>：把你用 TurboWarp / Scratch 导出的 <b>.html</b> 作品，
+      一键打包成 <b>iOS（.ipa）</b> 和 <b>Android（.apk）</b> 原生安装包。
+      填好名字、图标、权限、旋转方向，剩下的交给云端构建，直接拿安装包。
+    </p>
+  </section>
+
+  <!-- ================= 这是什么 ================= -->
+  <section class="reveal">
+    <h2>这是什么</h2>
+    <p class="body">
+      很多学过图形化编程的人，做出来的作品只能停留在浏览器里。Html App Build 做的事很简单：
+      把那个能跑的网页，套进一个真正的手机 App 壳子里——iOS 用 <b>WKWebView</b>，Android 用 <b>WebView</b>，
+      再走云端流水线把安装包编译、签名处理好。你不需要装 Xcode、不需要配 Android Studio，
+      点一下「构建」，过一会儿安装包就回来了。
+    </p>
+  </section>
+
+  <!-- ================= 能做什么 ================= -->
+  <section class="reveal">
+    <h2>能做什么</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="n">01</div>
+        <h3>双平台打包</h3>
+        <p>同一份 .html，既能出 iOS 的 .ipa，也能出 Android 的 .apk。</p>
+      </div>
+      <div class="card">
+        <div class="n">02</div>
+        <h3>自定义信息</h3>
+        <p>App 名字、图标、包名（Bundle ID）都能自己填，装进手机显示的是你起的名。</p>
+      </div>
+      <div class="card">
+        <div class="n">03</div>
+        <h3>权限清单</h3>
+        <p>按平台勾选可申请的权限（相机、相册、定位……），自动写进对应配置。</p>
+      </div>
+      <div class="card">
+        <div class="n">04</div>
+        <h3>旋转方向</h3>
+        <p>竖屏 / 横屏 / 自适应 三档可选，适配不同玩法的作品。</p>
+      </div>
+      <div class="card">
+        <div class="n">05</div>
+        <h3>云端构建</h3>
+        <p>编译、签名都在云端完成，本机只负责上传配置、下载成品。</p>
+      </div>
+      <div class="card">
+        <div class="n">06</div>
+        <h3>零环境门槛</h3>
+        <p>不用自己装 Xcode / Gradle，开箱即用，适合非专业开发者。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 怎么用 ================= -->
+  <section class="reveal">
+    <h2>怎么用</h2>
+    <ol class="steps">
+      <li>从 TurboWarp / Scratch 把作品<b>打包成 .html</b>（含全部资源、单文件最好）。</li>
+      <li>下载并打开 <b>Html App Build</b>（Windows 版），选要出的平台：iOS 或 Android。</li>
+      <li>上传 <b>图标</b>、填写 <b>App 名字</b> 与 <b>包名</b>，按需勾选<b>权限</b>、选好<b>旋转方向</b>。</li>
+      <li>点「构建」，工具把配置传到云端流水线，开始编译并签名。</li>
+      <li>构建完成后下载 <b>.ipa / .apk</b>，装到手机上就能玩了。</li>
+    </ol>
+    <div class="note">
+      <b>关于安装：</b>iOS 的 .ipa 需要通过<b>自签 / 证书侧载</b>（如爱思助手、牛蛙等）装到设备；
+      Android 的 .apk 在允许「未知来源」后可直接安装。具体怎么装属于各平台侧载常识，这里不展开。
+    </div>
+  </section>
+
+  <!-- ================= 注意事项 ================= -->
+  <section class="reveal">
+    <h2>注意事项（说实话）</h2>
+    <p class="body">
+      它是「网页套壳 App」，不是把图形化逻辑重写成本地原生代码。好处是<b>简单、快、零环境</b>；
+      代价是：App 本质是个内嵌浏览器，<b>需要联网才能跑的作品要自己保证资源可达</b>，
+      且<b>摄像头 / 麦克风等系统能力受 WebView 限制</b>，不是所有原生权限都能在套壳里真正用起来——
+      勾了权限不代表功能一定可用，做之前先想清楚你的作品用不用得到这些硬件能力。
+    </p>
+    <div class="note">
+      <b>它适合：</b>展示类、交互类、小游戏类作品，想快速装进手机分享给别人。<br>
+      <b>它不适合：</b>强依赖系统硬件（深度相机 / 蓝牙外设）或要上架 App Store 的正式产品。
+    </div>
+  </section>
+
+  <!-- ================= 下载 ================= -->
+  <section id="download" class="reveal">
+    <h2>下载</h2>
+    <div class="dl">
+      <div class="meta">
+        <div class="name">Html App Build（Windows）</div>
+        <div class="sub">单文件 exe · 约 35 MB · 支持 Windows 10/11 · 内置全部依赖，双击即用</div>
+      </div>
+      <a class="btn green" href="downloads/HtmlAppBuild.exe" download="Html App Build.exe">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1 1v.5H3.5a1 1 0 0 1 0-2H5zm14 0a1 1 0 0 1 1 1v.5H18.5a1 1 0 0 1 0-2H19z"/>
+        </svg>
+        下载 Windows 版
+      </a>
+    </div>
+    <p class="body" style="margin-top:14px;font-size:13px">
+      iOS / Android 的安装包由工具内的云端构建生成，本页不提供现成包——装好桌面工具后按需打包即可。
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 单面本面 · <a href="index.html">返回主页</a></span>
+    <span class="wx">微信：<b>baoma20140906</b></span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (e) { e.classList.add('on'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+</body>
+</html>
