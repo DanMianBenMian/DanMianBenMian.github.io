@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>单面本面 · 主页</title>
+<meta name="description" content="单面本面 —— 喜欢图形化编程和 iOS 折腾的小开发者。把「不可能自己做」的东西，一个个做出来。">
+<meta name="theme-color" content="#05070f">
+<meta property="og:title" content="单面本面">
+<meta property="og:description" content="喜欢图形化编程和 iOS 折腾的小开发者。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --accent:#22d3ee;        /* 霓虹青 */
+    --accent2:#a78bfa;       /* 霓虹紫 */
+    --text:#c9d1d9;
+    --dim:#7d8ba5;
+    --panel:rgba(20,28,46,.66);
+    --line:rgba(34,211,238,.22);
+    --maxw:940px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:#05070f;
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+    line-height:1.75;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- 背景：两团缓慢漂移的光 + 网格 ---------- */
+  .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
+      radial-gradient(120% 90% at 50% -10%,#1a2540 0%,#0c1120 55%,#05070f 100%)}
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
+  .orb.a{width:420px;height:420px;background:#22d3ee;top:-120px;left:-90px;animation:float1 22s ease-in-out infinite}
+  .orb.b{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation:float2 26s ease-in-out infinite}
+  .grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(34,211,238,.055) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(34,211,238,.055) 1px,transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%);
+    -webkit-mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%)}
+  @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+  @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
+
+  /* ---------- 顶栏 ---------- */
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(5,7,15,.72);border-bottom:1px solid rgba(34,211,238,.14)}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#eafcff;letter-spacing:.5px;text-decoration:none}
+  .brand svg{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+  .nav .links{margin-left:auto;display:flex;gap:20px;font-size:14px}
+  .nav a{color:var(--dim);text-decoration:none;transition:color .2s}
+  .nav a:hover{color:var(--accent)}
+
+  section{max-width:var(--maxw);margin:0 auto;padding:76px 20px}
+  h2{font-size:21px;color:#eafcff;margin-bottom:26px;display:flex;align-items:center;gap:11px}
+  h2::before{content:"";width:4px;height:19px;border-radius:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.7)}
+
+  /* ---------- Hero ---------- */
+  .hero{min-height:78vh;display:flex;flex-direction:column;justify-content:center;padding-top:40px}
+  .tagline{color:var(--accent);font-size:14px;letter-spacing:3px;margin-bottom:14px}
+  .hero h1{font-size:clamp(40px,9vw,68px);line-height:1.12;font-weight:800;letter-spacing:1px;
+    background:linear-gradient(100deg,#eafcff 0%,var(--accent) 42%,var(--accent2) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 26px rgba(34,211,238,.28))}
+  .hero p.lead{margin-top:20px;font-size:16px;color:var(--dim);max-width:560px}
+  .hero p.lead b{color:var(--text);font-weight:600}
+  .cta{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{padding:11px 22px;border-radius:10px;text-decoration:none;font-size:14.5px;font-weight:600;
+    transition:transform .18s,box-shadow .25s,background .25s}
+  .btn.primary{background:linear-gradient(90deg,#1b8fb3,#6d4fc4);color:#eafcff;border:1px solid #5fe9ff}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(34,211,238,.42)}
+  .btn.ghost{color:#bdecf7;border:1px solid var(--line);background:rgba(34,211,238,.06)}
+  .btn.ghost:hover{background:rgba(34,211,238,.14);border-color:#5fe9ff;transform:translateY(-2px)}
+
+  /* ---------- 卡片 ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;
+    transition:transform .2s,border-color .25s,box-shadow .3s;position:relative;overflow:hidden}
+  .card::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
+    background:linear-gradient(140deg,rgba(34,211,238,.10),transparent 55%);opacity:0;transition:opacity .3s}
+  .card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.55);box-shadow:0 14px 34px rgba(3,8,20,.7)}
+  .card:hover::after{opacity:1}
+  .card h3{font-size:17px;color:#eafcff;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:14px;color:var(--dim)}
+  .tags{margin-top:15px;display:flex;gap:7px;flex-wrap:wrap}
+  .tag{font-size:11.5px;padding:3px 9px;border-radius:999px;color:#9fe9f7;
+    background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.28)}
+  .tag.p{color:#d5c6ff;background:rgba(167,139,250,.10);border-color:rgba(167,139,250,.3)}
+  .badge{font-size:11px;padding:2px 8px;border-radius:999px;margin-left:auto;
+    color:#8ef0b4;background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.35)}
+  .card a.more{display:inline-block;margin-top:14px;font-size:13.5px;color:var(--accent);text-decoration:none}
+  .card a.more:hover{text-decoration:underline}
+
+  /* ---------- 联系 ---------- */
+  .links-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .link-item{display:flex;align-items:center;gap:13px;padding:17px 20px;border-radius:13px;
+    background:var(--panel);border:1px solid var(--line);text-decoration:none;
+    transition:border-color .25s,transform .2s}
+  .link-item:hover{border-color:rgba(34,211,238,.55);transform:translateY(-3px)}
+  .link-item .ico{width:34px;height:34px;flex:none;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(140deg,rgba(34,211,238,.16),rgba(167,139,250,.16));color:var(--accent)}
+  .link-item .t{font-size:14.5px;color:#eafcff}
+  .link-item .s{font-size:12px;color:var(--dim)}
+  .wxid{font-size:17px;color:#eafcff;font-weight:600;letter-spacing:1px;font-family:"SFMono-Regular",Consolas,Menlo,monospace}
+
+  footer{border-top:1px solid rgba(34,211,238,.12);margin-top:40px}
+  footer .inner{max-width:var(--maxw);margin:0 auto;padding:28px 20px;
+    font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+  /* 入场动画 */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.on{opacity:1;transform:none}
+
+  @media (max-width:620px){
+    section{padding:58px 18px}
+    .nav .links{gap:15px;font-size:13px}
+    .hero{min-height:70vh}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"><div class="orb a"></div><div class="orb b"></div><div class="grid"></div></div>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <!-- 单面 = 一个只填了一半的圆 -->
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="#22d3ee" stroke-width="2.6"/>
+        <path d="M16 3a13 13 0 0 0 0 26z" fill="#a78bfa"/>
+      </svg>
+      单面本面
+    </a>
+    <div class="links">
+      <a href="#products">产品</a>
+      <a href="#contact">联系</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ================= Hero ================= -->
+  <section class="hero">
+    <div class="tagline">HELLO, WORLD</div>
+    <h1>单面本面</h1>
+    <p class="lead">
+      六年级，喜欢<b>图形化编程</b>和<b>折腾 iOS</b>。<br>
+      相信一件事：<b>复杂的技术，普通人也能用上。</b>
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#products">看看我的产品</a>
+      <a class="btn ghost" href="html-app-build.html">了解 Html App Build</a>
+    </div>
+  </section>
+
+  <!-- ================= 产品 ================= -->
+  <!-- 想加产品，照抄一个 <article class="card"> 改内容即可 -->
+  <section id="products" class="reveal">
+    <h2>产品</h2>
+    <div class="cards">
+
+      <article class="card">
+        <h3>Html App Build <span class="badge">可用</span></h3>
+        <p>把 TurboWarp / 图形化编程作品一键打包成 <b>iOS 和 Android 原生 App</b>。
+           选平台、传图标、填名字、勾权限、设旋转方向，剩下的交给云端构建，直接拿安装包。</p>
+        <div class="tags">
+          <span class="tag">桌面工具</span>
+          <span class="tag">Python</span>
+          <span class="tag p">云构建</span>
+          <span class="tag p">TurboWarp</span>
+        </div>
+        <a class="more" href="html-app-build.html">查看详情 / 下载 →</a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ================= 联系 ================= -->
+  <section id="contact" class="reveal">
+    <h2>联系</h2>
+    <div class="links-grid">
+      <div class="link-item" style="cursor:default">
+        <span class="ico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M9.5 4C5.36 4 2 6.46 2 9.5c0 1.74.99 3.29 2.54 4.31L4 16.5l2.8-1.4c.85.24 1.76.37 2.7.37.28 0 .56-.01.83-.04a5.6 5.6 0 0 1-.2-1.43c0-2.9 2.86-5.25 6.4-5.25.3 0 .6.02.89.05C16.75 5.7 13.43 4 9.5 4z"/>
+            <path d="M22 14c0-2.49-2.6-4.5-5.8-4.5S10.4 11.51 10.4 14s2.6 4.5 5.8 4.5c.72 0 1.4-.1 2.04-.29L20.6 19.3l-.5-1.9A4.6 4.6 0 0 0 22 14z"/>
+          </svg>
+        </span>
+        <span><span class="t">微信</span><br><span class="wxid">baoma20140906</span></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 单面本面</span>
+    <span>用 HTML 手写 · 部署在 GitHub Pages</span>
+  </div>
+</footer>
+
+<script>
+  // 滚动入场
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (e) { e.classList.add('on'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+</body>
+</html>
