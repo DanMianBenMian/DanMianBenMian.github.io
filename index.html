@@ -79,7 +79,7 @@
   .btn.ghost:hover{background:rgba(34,211,238,.14);border-color:#5fe9ff;transform:translateY(-2px)}
 
   /* ---------- 卡片 ---------- */
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:18px}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;
     transition:transform .2s,border-color .25s,box-shadow .3s;position:relative;overflow:hidden}
   .card::after{content:"";position:absolute;inset:0;border-radius:14px;pointer-events:none;
@@ -121,6 +121,7 @@
     section{padding:58px 18px}
     .nav .links{gap:15px;font-size:13px}
     .hero{min-height:70vh}
+    .cards{grid-template-columns:1fr}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
