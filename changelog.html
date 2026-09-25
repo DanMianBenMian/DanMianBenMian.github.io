@@ -105,7 +105,7 @@
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.21</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.22</b>。</p>
   </section>
 
   <section class="reveal">
@@ -113,9 +113,16 @@
     <div class="timeline">
 
       <div class="cl">
-        <div class="top"><span class="v latest">V2.4.21</span><span class="date">2026-09-25</span><span class="tag">最新</span></div>
+        <div class="top"><span class="v latest">V2.4.22</span><span class="date">2026-09-25</span><span class="tag">最新</span></div>
         <ul>
-          <li>★ <b>callPtr 变参缺陷修复</b>：旧 <code>callPtr</code> 用固定原型分发 → 实参全走寄存器，而 arm64 ABI 变参函数<b>未命名实参必须上栈</b> → <code>syscall</code> ≥1 实参<b>静默返回假 EINVAL/ENOENT</b>（0 实参正常）。</li>
+          <li>★ <b>callPtr 正式走变参通道</b>：文档入口名 <code>callPtr</code> 现在也经 <code>ryVariadicCall</code> 分发（arm64 未命名实参正确上栈），FFI 终于可对 syscall / printf / ioctl 等变参函数生效。</li>
+          <li>沿用 V2.4.21 的 <code>callVariadic()</code> / <code>syscallN()</code>；原生原语合计 <b>81</b>。</li>
+        </ul>
+      </div>
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.21</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>新增 <code>callVariadic(addrHex,args,opts)</code> / <code>syscallN()</code> 变参原语（<code>callPtr</code> 入口本身的变参修复在 V2.4.22 补齐）。</li>
           <li>新增 <code>callVariadic(addrHex,args,opts)</code> —— 走真·变参函数指针原型（clang 自动上栈，无 libffi/汇编），返回 -1 附 <b>errno 透传</b>（当场分清 EINVAL/EPERM），<code>{buf:}</code> 槽回传 <code>bufAddrN</code>。</li>
           <li>新增 <code>syscallN(number,args,opts)</code> —— <b>号段校验</b>（<code>kern.nsysent</code>，读不到退 512）+ <b>csops(45) 死亡名单默认拦截</b>（<code>{allowDead:true}</code> 放行）→ 越界号从「SIGSYS 杀进程」变受控报错。</li>
           <li>原生原语 <b>79 → 81</b>。</li>
@@ -266,7 +273,7 @@
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.21</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.22</b></span>
   </div>
 </footer>
 
