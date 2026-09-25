@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RyConsole 更新日志 · 单面本面</title>
+<meta name="description" content="RyConsole / RyConsole Autorun 历代版本更新记录。">
+<meta name="theme-color" content="#05070f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --accent:#22d3ee;
+    --accent2:#a78bfa;
+    --text:#c9d1d9;
+    --dim:#7d8ba5;
+    --panel:rgba(20,28,46,.66);
+    --line:rgba(34,211,238,.22);
+    --maxw:880px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:#05070f;color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+    line-height:1.8;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
+      radial-gradient(120% 90% at 50% -10%,#1a2540 0%,#0c1120 55%,#05070f 100%)}
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
+  .orb.a{width:420px;height:420px;background:#22d3ee;top:-120px;left:-90px;animation:float1 22s ease-in-out infinite}
+  .orb.b{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation:float2 26s ease-in-out infinite}
+  @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+  @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
+
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(5,7,15,.72);border-bottom:1px solid rgba(34,211,238,.14)}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#eafcff;letter-spacing:.5px;text-decoration:none}
+  .brand svg{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+  .nav .links{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .nav a{color:var(--dim);text-decoration:none;transition:color .2s}
+  .nav a:hover{color:var(--accent)}
+
+  section{max-width:var(--maxw);margin:0 auto;padding:56px 20px}
+  .tagline{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:12px}
+  h1{font-size:clamp(30px,7vw,48px);line-height:1.15;font-weight:800;letter-spacing:1px;
+    background:linear-gradient(100deg,#eafcff 0%,var(--accent) 45%,var(--accent2) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 22px rgba(34,211,238,.26))}
+  p.lead{margin-top:16px;font-size:15px;color:var(--dim);max-width:640px}
+
+  h2{font-size:19px;color:#eafcff;margin:40px 0 18px;display:flex;align-items:center;gap:11px}
+  h2::before{content:"";width:4px;height:19px;border-radius:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.7)}
+
+  .timeline{position:relative;margin-top:8px;padding-left:6px}
+  .cl{border-left:2px solid var(--line);padding:4px 0 22px 22px;position:relative}
+  .cl::before{content:"";position:absolute;left:-7px;top:10px;width:12px;height:12px;border-radius:50%;
+    background:linear-gradient(140deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.6)}
+  .cl .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .cl .v{font-size:16px;color:#eafcff;font-weight:800;letter-spacing:.5px}
+  .cl .v.latest{color:var(--accent)}
+  .cl .date{font-size:12.5px;color:var(--dim)}
+  .cl .tag{font-size:11px;color:#0a0f1c;background:linear-gradient(90deg,#22d3ee,#a78bfa);
+    padding:1px 9px;border-radius:20px;font-weight:700;letter-spacing:.5px}
+  .cl ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;color:var(--dim);max-width:680px}
+  .cl li{margin:3px 0}
+  .cl b{color:var(--text);font-weight:600}
+  .cl code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;color:#9fe9f7;
+    background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.28);border-radius:6px;padding:1px 6px}
+  .cl .note{font-size:12.5px;color:#cbbdf2;margin-top:6px;background:rgba(167,139,250,.07);
+    border:1px solid rgba(167,139,250,.24);border-radius:9px;padding:9px 12px;max-width:680px}
+
+  footer{border-top:1px solid rgba(34,211,238,.12);margin-top:30px}
+  footer .inner{max-width:var(--maxw);margin:0 auto;padding:24px 20px;
+    font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center}
+  footer a{color:var(--dim);text-decoration:none}
+  footer a:hover{color:var(--accent)}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.on{opacity:1;transform:none}
+  @media (max-width:620px){ section{padding:42px 18px} .nav .links{gap:14px;font-size:13px} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} .reveal{opacity:1;transform:none} }
+</style>
+</head>
+<body>
+
+<div class="bg"><div class="orb a"></div><div class="orb b"></div></div>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="#22d3ee" stroke-width="2.6"/>
+        <path d="M16 3a13 13 0 0 0 0 26z" fill="#a78bfa"/>
+      </svg>
+      单面本面
+    </a>
+    <div class="links">
+      <a href="ryconsole-autorun.html">Autorun 主页</a>
+      <a href="index.html">站点主页</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
+    <h1>RyConsole 更新日志</h1>
+    <p class="lead">从 2026-07 的第一个研究控制台，到今天 81 个原生桥的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.21</b>。</p>
+  </section>
+
+  <section class="reveal">
+    <h2>版本时间线</h2>
+    <div class="timeline">
+
+      <div class="cl">
+        <div class="top"><span class="v latest">V2.4.21</span><span class="date">2026-09-25</span><span class="tag">最新</span></div>
+        <ul>
+          <li>★ <b>callPtr 变参缺陷修复</b>：旧 <code>callPtr</code> 用固定原型分发 → 实参全走寄存器，而 arm64 ABI 变参函数<b>未命名实参必须上栈</b> → <code>syscall</code> ≥1 实参<b>静默返回假 EINVAL/ENOENT</b>（0 实参正常）。</li>
+          <li>新增 <code>callVariadic(addrHex,args,opts)</code> —— 走真·变参函数指针原型（clang 自动上栈，无 libffi/汇编），返回 -1 附 <b>errno 透传</b>（当场分清 EINVAL/EPERM），<code>{buf:}</code> 槽回传 <code>bufAddrN</code>。</li>
+          <li>新增 <code>syscallN(number,args,opts)</code> —— <b>号段校验</b>（<code>kern.nsysent</code>，读不到退 512）+ <b>csops(45) 死亡名单默认拦截</b>（<code>{allowDead:true}</code> 放行）→ 越界号从「SIGSYS 杀进程」变受控报错。</li>
+          <li>原生原语 <b>79 → 81</b>。</li>
+        </ul>
+        <div class="note">真机验收：<code>msync</code> 经 <code>callVariadic</code> 与非变参直调 A/B 应同为 0x0；<code>syscallN(202,…)</code> 失败时看 errno（定性 P1「errno 生死」）。</div>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.20</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>★ <b>Tier 3 原生 Mach 竞态桥（RACE_plan_v2 §3）</b>：解锁此前被 <code>bridge_iokit</code> 用户态 <code>ryConnProblem</code> 体检封死的 <code>ipc_port</code>/<code>vm_map</code> 内核竞态面。</li>
+          <li>新增 9 原语：<code>portAlloc/portInsertRight/portDealloc/portDestroy/portModRefs/portType</code>（mach_port 生命周期）+ <code>vmAlloc/vmDealloc</code>（vm_map 并发）+ <code>iokitCallPort</code>（<b>跳过体检直发内核</b>）。</li>
+          <li>原生原语 <b>70 → 79</b>。</li>
+        </ul>
+        <div class="note">⚠️ Mach/vm UAF 可能触发 kernel panic（设备重启）；探针 ITERS 已保守（800），真命中再降 iters 复现并抓 <code>guardAddr</code>+<code>lastPrim</code>。</div>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.19</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>★ <b>envReset 回归修复</b>（JSC 桥转换坑）：无参 <code>envReset()</code> 在真机竟停了服务端（违背 V2.4.15「默认不停」）—— 根因是 JS 不传参时 <code>undefined</code> 被 JSC 转成非零 <code>NSNumber</code>。改注册点改用 <code>JSValue*</code> 参数 + 判空兜底。</li>
+          <li>通用坑：所有声明 <code>NSNumber*/BOOL</code> 形参的原语，无参调用都会踩同样的坑，统一 <code>JSValue</code> 参数 + 判空。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.18</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>★ 新增 <code>envCred()</code> 身份原语：<code>{uid,euid,gid,egid,groups[],login}</code> —— <b>uid/euid 拆开报</b>是故意做成的实时 LPE 金丝雀（真提权时 uid→0 或 euid→0）。返回值保留原始数值不替换名字。</li>
+          <li>★ 修复 <b>liveHits 灵动岛焊接 Bug</b>：<code>doPush()</code> 抛错后收账代码被跳过 → <code>pushInFlight</code> 永久 true → 灵动岛焊死在 0。<code>defer</code> 兜底后管道不再卡死。</li>
+          <li><code>build_ui.py</code> 推送清单修复：旧清单漏推 Swift 文件，导致云构建用仓库旧版；改为完整遍历 <code>PayloadApp/RyConsoleScripts/tools</code>。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.17</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>「复制地址」改弹窗选择：列出 Wi-Fi / 个人热点 / 蜂窝各自地址（没有的不出现），选中即复制；只有一条可用时不弹窗直接复制。</li>
+          <li>新增 <code>RYTopVCForPresent()</code> 解决 iPad 弹窗需锚点否则崩的问题。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.16</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>★ <b>真正的优先级 Bug 修复</b>：V2.4.14 只改了数组顺序，但取值循环按枚举顺序扫，pri 顺序根本没生效（用户设备 <code>bridge100</code> 恰在 <code>en0</code> 前）。改为<b>按 pri 顺序逐个接口名查找</b>。</li>
+          <li>Autorun 面板列出全部地址（Wi-Fi / 热点 / 蜂窝），不再只给一个。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.15</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>★ 设计缺陷修正：<b>重置环境不再停服务端</b>（半自动工作流不被打断）。<code>envReset()</code> 默认保留监听，要停显式 <code>envReset(true)</code>。</li>
+          <li><code>clean</code> 判定不再把「服务端运行中」算作污染，打破「开着监听就显示不干净 → 诱导重置 → 重置又停监听」的恶性循环。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.14</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>★ 网络端点分类 + 优先级 Bug 修复：<b>Wi-Fi 优先</b>（<code>en0 → bridge100 → pdp_ip0</code>），<code>RYHotspotIP</code> 改名 <code>RYReachableIP</code>。</li>
+          <li>新增 <code>RYNetworkEndpointsJSON()</code>：按类给 <code>{wifi?,hotspot?,cellular?,hasAny,all[]}</code>（没有的类不出现）。</li>
+          <li>新增原语 <code>envNet()</code>；<code>envState()</code> 加 <code>net</code>/<code>hasNetwork</code>；<code>/ping</code> 加 <code>endpoints</code>。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.0 – V2.4.13</span><span class="date">2026-08 ~ 09</span></div>
+        <ul>
+          <li>环境 / 网络 / 保活体系建立期：<code>envState/envNet</code>、灵动岛「监听中」实时活动、IP 选择雏形、崩溃兜底接入、多轮提交与结果轮询契约成型。</li>
+          <li>（此区间逐版本细节未单列，以 V2.4.14 起的版本表为权威记录。）</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.3.0</span><span class="date">2026-08</span></div>
+        <ul>
+          <li>★ <b>callPtr（C 函数指针 FFI）</b>：补齐 <code>dlopenFW</code>/<code>dlsymAddr</code> 之后最后一环，可在沙盒内直调任意已解析 C 符号。规格见 <code>RYCONSOLE_CALLPTR_SPEC.md</code>。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.2.7</span><span class="date">2026-08</span></div>
+        <ul>
+          <li>★ 崩溃兜底<b>生效修复</b>：V2.2.6 的 <code>sigsetjmp</code> 会「返回两次」，撤点语句写在它后面正常路径也执行 → 等于布完点立刻撤了，实测未生效。V2.2.7 改撤点只在「跳回」分支做。</li>
+          <li>判定手上版本：给垃圾对象发消息，返回 <code>guarded:true</code> 且 App 活着 → V2.2.7+；直接死 → 还是 V2.2.6。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.2.6</span><span class="date">2026-08</span></div>
+        <ul>
+          <li>崩溃兜底初版：用户态信号崩溃（SIGSEGV/SIGBUS/SIGILL/SIGFPE/SIGTRAP）不再重启进程，执行以「触发崩溃，已兜底」返回，App 存活。（初版有缺陷，见 V2.2.7）</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.2.5</span><span class="date">2026-08</span></div>
+        <ul>
+          <li>★ <b>装桥 / 改桥不用重编重装</b>：App 加载时 Documents 同名文件优先于包内默认，<code>tools/ryc_bridge.py list|versions|push|pushall|get|rm</code> 管理。</li>
+          <li>33 个原语加<b>类型守卫</b>（不再吐英文 TypeError）；修掉研究探针里整张错位的 kr 码表。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.2.4</span><span class="date">2026-08</span></div>
+        <ul>
+          <li>桥失败一律<b>自解释</b>（直接给「参数名 + 合法范围」）。</li>
+          <li>设备上敲 <code>primHelp()</code> 查原语手册；<code>iokitMapTry()</code> 一键扫 memType；崩溃日志 + <code>lastPrim</code> 点名。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.2</span><span class="date">2026-07 ~ 08</span></div>
+        <ul>
+          <li><code>memRead</code>（映射内存 dump）+ 监听期<b>后台保活</b> + <b>灵动岛「监听中」实时活动</b>。</li>
+          <li><code>objc_msgSendSafe</code>（结构化错误 + 参数上限）。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.1</span><span class="date">2026-07</span></div>
+        <ul>
+          <li>ObjC runtime 桥：<code>objc_getClass</code> / <code>sel_registerName</code> / <code>objc_msgSend</code> / <code>objcDesc</code>。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2</span><span class="date">2026-07-26</span></div>
+        <ul>
+          <li>RyConsole 研究控制台诞生（起因：A14 越狱尝试，4 天内发现 Apple ID 免费签额度瓶颈，转而自建执行环境）。</li>
+          <li>结构化 XPC（<code>xpcConn/xpcSendMsg/xpcClose</code>）、<code>machLookUp</code>、dyld（<code>dlopenFW/dlsymAddr</code>）、<code>sandboxCheck</code>、<code>keychainProbe</code>、<code>procListPids</code>、<code>posixSpawn</code>。</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.21</b></span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e){e.classList.add('on');}); return; }
+    var io = new IntersectionObserver(function (entries){
+      entries.forEach(function (en){ if (en.isIntersecting){ en.target.classList.add('on'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (e){ io.observe(e); });
+  })();
+</script>
+</body>
+</html>
