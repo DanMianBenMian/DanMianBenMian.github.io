@@ -105,7 +105,7 @@
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的第一个研究控制台，到今天 81 个原生桥的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.21</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.21</b>。</p>
   </section>
 
   <section class="reveal">
@@ -184,7 +184,7 @@
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.4.0 – V2.4.13</span><span class="date">2026-08 ~ 09</span></div>
+        <div class="top"><span class="v">V2.4.0 – V2.4.13</span><span class="date">2026-09</span></div>
         <ul>
           <li>环境 / 网络 / 保活体系建立期：<code>envState/envNet</code>、灵动岛「监听中」实时活动、IP 选择雏形、崩溃兜底接入、多轮提交与结果轮询契约成型。</li>
           <li>（此区间逐版本细节未单列，以 V2.4.14 起的版本表为权威记录。）</li>
@@ -192,14 +192,14 @@
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.3.0</span><span class="date">2026-08</span></div>
+        <div class="top"><span class="v">V2.3.0</span><span class="date">2026-09</span></div>
         <ul>
           <li>★ <b>callPtr（C 函数指针 FFI）</b>：补齐 <code>dlopenFW</code>/<code>dlsymAddr</code> 之后最后一环，可在沙盒内直调任意已解析 C 符号。规格见 <code>RYCONSOLE_CALLPTR_SPEC.md</code>。</li>
         </ul>
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.2.7</span><span class="date">2026-08</span></div>
+        <div class="top"><span class="v">V2.2.7</span><span class="date">2026-09</span></div>
         <ul>
           <li>★ 崩溃兜底<b>生效修复</b>：V2.2.6 的 <code>sigsetjmp</code> 会「返回两次」，撤点语句写在它后面正常路径也执行 → 等于布完点立刻撤了，实测未生效。V2.2.7 改撤点只在「跳回」分支做。</li>
           <li>判定手上版本：给垃圾对象发消息，返回 <code>guarded:true</code> 且 App 活着 → V2.2.7+；直接死 → 还是 V2.2.6。</li>
@@ -207,14 +207,14 @@
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.2.6</span><span class="date">2026-08</span></div>
+        <div class="top"><span class="v">V2.2.6</span><span class="date">2026-09</span></div>
         <ul>
           <li>崩溃兜底初版：用户态信号崩溃（SIGSEGV/SIGBUS/SIGILL/SIGFPE/SIGTRAP）不再重启进程，执行以「触发崩溃，已兜底」返回，App 存活。（初版有缺陷，见 V2.2.7）</li>
         </ul>
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.2.5</span><span class="date">2026-08</span></div>
+        <div class="top"><span class="v">V2.2.5</span><span class="date">2026-09</span></div>
         <ul>
           <li>★ <b>装桥 / 改桥不用重编重装</b>：App 加载时 Documents 同名文件优先于包内默认，<code>tools/ryc_bridge.py list|versions|push|pushall|get|rm</code> 管理。</li>
           <li>33 个原语加<b>类型守卫</b>（不再吐英文 TypeError）；修掉研究探针里整张错位的 kr 码表。</li>
@@ -222,7 +222,7 @@
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.2.4</span><span class="date">2026-08</span></div>
+        <div class="top"><span class="v">V2.2.4</span><span class="date">2026-09</span></div>
         <ul>
           <li>桥失败一律<b>自解释</b>（直接给「参数名 + 合法范围」）。</li>
           <li>设备上敲 <code>primHelp()</code> 查原语手册；<code>iokitMapTry()</code> 一键扫 memType；崩溃日志 + <code>lastPrim</code> 点名。</li>
@@ -230,7 +230,7 @@
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.2</span><span class="date">2026-07 ~ 08</span></div>
+        <div class="top"><span class="v">V2.2</span><span class="date">2026-09</span></div>
         <ul>
           <li><code>memRead</code>（映射内存 dump）+ 监听期<b>后台保活</b> + <b>灵动岛「监听中」实时活动</b>。</li>
           <li><code>objc_msgSendSafe</code>（结构化错误 + 参数上限）。</li>
@@ -238,16 +238,23 @@
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2.1</span><span class="date">2026-07</span></div>
+        <div class="top"><span class="v">V2.1</span><span class="date">2026-09</span></div>
         <ul>
           <li>ObjC runtime 桥：<code>objc_getClass</code> / <code>sel_registerName</code> / <code>objc_msgSend</code> / <code>objcDesc</code>。</li>
         </ul>
       </div>
 
       <div class="cl">
-        <div class="top"><span class="v">V2</span><span class="date">2026-07-26</span></div>
+        <div class="top"><span class="v">V1</span><span class="date">2026-07</span></div>
         <ul>
-          <li>RyConsole 研究控制台诞生（起因：A14 越狱尝试，4 天内发现 Apple ID 免费签额度瓶颈，转而自建执行环境）。</li>
+          <li>RyConsole 旧款研究控制台诞生（起因：A14 越狱尝试，4 天内发现 Apple ID 免费签额度瓶颈，转而自建执行环境）。V1 为后续基建思路奠基。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2</span><span class="date">2026-09</span></div>
+        <ul>
+          <li>★ 新款 RyConsole 研究控制台重新开发（当前形态）：在 V1 基建思路上重写，能力大幅扩展。</li>
           <li>结构化 XPC（<code>xpcConn/xpcSendMsg/xpcClose</code>）、<code>machLookUp</code>、dyld（<code>dlopenFW/dlsymAddr</code>）、<code>sandboxCheck</code>、<code>keychainProbe</code>、<code>procListPids</code>、<code>posixSpawn</code>。</li>
         </ul>
       </div>
