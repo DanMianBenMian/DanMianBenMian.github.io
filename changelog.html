@@ -105,7 +105,7 @@
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.22</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.23</b>。</p>
   </section>
 
   <section class="reveal">
@@ -113,10 +113,16 @@
     <div class="timeline">
 
       <div class="cl">
-        <div class="top"><span class="v latest">V2.4.22</span><span class="date">2026-09-25</span><span class="tag">最新</span></div>
+        <div class="top"><span class="v latest">V2.4.23</span><span class="date">2026-09-25</span><span class="tag">最新</span></div>
         <ul>
-          <li>★ <b>callPtr 正式走变参通道</b>：文档入口名 <code>callPtr</code> 现在也经 <code>ryVariadicCall</code> 分发（arm64 未命名实参正确上栈），FFI 终于可对 syscall / printf / ioctl 等变参函数生效。</li>
-          <li>沿用 V2.4.21 的 <code>callVariadic()</code> / <code>syscallN()</code>；原生原语合计 <b>81</b>。</li>
+          <li>★ <b>回退 callPtr 到固定元数</b>：2.4.22 让 callPtr 走变参通道，固定元数 libc（memset / kill / mmap 等）x1–x7 实参被破坏、多参结果错误（回归）。现 callPtr 回固定元数寄存器传参，多参 / syscall 恢复正常；真变参（printf 等）仍走 <code>callVariadic</code>，受控 syscall 走 <code>syscallN</code>。</li>
+          <li>errno 两条路径失败都附（坏 pid 可验 errno=3 ESRCH）；原生原语合计 <b>81</b>。</li>
+        </ul>
+      </div>
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.22</span><span class="date">2026-09-25</span></div>
+        <ul>
+          <li>⚠ <b>已知回归</b>：callPtr 误走变参通道，多参 libc 调用结果错误，已由 V2.4.23 回退修复；单参调用不受影响。</li>
         </ul>
       </div>
       <div class="cl">
@@ -273,7 +279,7 @@
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.22</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.23</b></span>
   </div>
 </footer>
 
