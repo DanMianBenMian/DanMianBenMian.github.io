@@ -209,7 +209,7 @@
       <li>左侧 <b>Autorun</b> 面板点「启动监听」，等圆点变绿、显示 <code>:8899</code>。</li>
       <li>电脑上下载 <b>ryc_autorun.exe</b>，终端先测连通：<code>ryc_autorun.exe ping --host &lt;iPadIP&gt;</code>。</li>
       <li>发探针：<code>ryc_autorun.exe run --host &lt;iPadIP&gt; --code-file probe_env.js --json --quiet</code>。</li>
-      <li>等 iPad 回传（客户端自动轮询最多 12 次），终端打印执行结果与返回值。</li>
+      <li>等 iPad 回传（客户端自动轮询，默认 3s×12；长探针可 <code>--interval/--max-polls</code> 自定义，一把等到底），终端打印执行结果与返回值。</li>
     </ol>
     <div class="note">
       <b>关于监听（V2.2 起已解决后台挂起）：</b>点「启动监听」后 App 自动进入<b>保活态</b> ——
@@ -258,7 +258,9 @@
     <div class="dl" style="margin-top:16px">
       <div class="meta">
         <div class="name">RyConsole（iPhone / iPad 通用）</div>
-        <div class="sub">未签名 IPA · AutorunServer + <b>68</b> 个原生桥（ObjC runtime 万用桥 / objc_msgSendSafe / 读映射内存 memRead / XPC 结构化桥 / dyld 符号 / 沙盒 / 钥匙串）+ <b>监听期后台保活</b> + <b>灵动岛「监听中」实时活动</b> + 手机·iPad竖屏底部栏 · 需侧载安装</div>
+        <div class="sub">未签名 IPA · AutorunServer + <b>81</b> 个原生桥（ObjC 万用桥 / XPC 结构化桥 / <b>Tier 3 原生 Mach 竞态桥</b> portAlloc·vmAlloc·iokitCallPort / <b>FFI 直调</b> callPtr·callVariadic·syscallN / 读映射内存 memRead / dyld 符号 / 沙盒 / 钥匙串 / envCred）+ <b>监听期后台保活</b> + <b>灵动岛「监听中」实时活动</b> · 需侧载安装</div>
+        <div class="sub"><b>V2.4.21</b>：修 <code>callPtr</code> 变参缺陷 —— 新增 <code>callVariadic()</code> 真·ABI 上栈调用（<code>syscall</code> ≥1 实参不再返回假 EINVAL，失败附 <code>errno</code> 当场定性）+ <code>syscallN()</code> 受控入口（号段校验 + csops 死亡名单，越界不再 SIGSYS 杀进程）+ <code>{buf:}</code> 槽回传 <code>bufAddr</code></div>
+        <div class="sub"><b>V2.4.20</b>：<b>Tier 3 原生 Mach 竞态桥</b> —— mach_port 生命周期六桥 + vm_map 并发 + <code>iokitCallPort</code> 跳过用户态体检直发内核 · <code>envCred</code> 实时 UID/EUID 提权金丝雀 · envReset 无参不再误停监听</div>
         <div class="sub"><b>V2.2.5</b>：<b>装桥/改桥不用重编重装</b> —— <code>tools/ryc_bridge.py list|versions|push|pushall|get|rm</code> · 8 个桥<b>自报版本</b>（一条命令查设备在跑哪版）· 33 个原语加<b>类型守卫</b>（不再吐英文 TypeError）· 修掉研究探针里整张错位的 kr 码表</div>
         <div class="sub"><b>V2.2.4</b>：桥失败一律<b>自解释</b>（直接给「参数名 + 合法范围」）· 设备上敲 <code>primHelp()</code> 即可查原语手册 · <code>iokitMapTry()</code> 一键扫 memType · 崩溃日志 + <code>lastPrim</code> 点名</div>
       </div>
@@ -272,7 +274,7 @@
     <div class="dl" style="margin-top:16px">
       <div class="meta">
         <div class="name">Agent Skill（SKILL.md）</div>
-        <div class="sub">给 AI 看的操作手册 · 含协议契约、68 个桥原语清单、<b>错误自解释约定（<code>] error]</code> 判据 + <code>primHelp</code>）</b>、保活与灵动岛的坑点、全部实踩坑点 · 可直接装进 WorkBuddy / Claude 等 Agent</div>
+        <div class="sub">给 AI 看的操作手册 · 含协议契约、<b>81 个桥原语清单</b>、<b>错误自解释约定（<code>] error]</code> 判据 + <code>primHelp</code>）</b>、自定义轮询纪律、保活与灵动岛的坑点、全部实踩坑点 · 可直接装进 WorkBuddy / Claude 等 Agent</div>
       </div>
       <a class="btn violet" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/ryconsole-autorun-skill.zip" download="ryconsole-autorun-skill.zip">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
