@@ -1,317 +1,733 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>RyConsole Autorun · 单面本面</title>
+
 <meta name="description" content="RyConsole Autorun —— 让 AI 在电脑端把 JS 探针发到局域网里的 iPad（RyConsole）执行，再把结果回传。用于 iOS 安全研究的自测与动态验证。">
+
 <meta name="theme-color" content="#05070f">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
+
 <style>
+
   :root{
+
     --accent:#22d3ee;
+
     --accent2:#a78bfa;
+
     --text:#c9d1d9;
+
     --dim:#7d8ba5;
+
     --panel:rgba(20,28,46,.66);
+
     --line:rgba(34,211,238,.22);
+
     --maxw:900px;
+
   }
+
   *{box-sizing:border-box;margin:0;padding:0}
+
   html{scroll-behavior:smooth}
+
   body{background:#05070f;color:var(--text);
+
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+
     line-height:1.8;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
   .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
+
       radial-gradient(120% 90% at 50% -10%,#1a2540 0%,#0c1120 55%,#05070f 100%)}
+
   .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
+
   .orb.a{width:420px;height:420px;background:#22d3ee;top:-120px;left:-90px;animation:float1 22s ease-in-out infinite}
+
   .orb.b{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation:float2 26s ease-in-out infinite}
+
   .grid{position:absolute;inset:0;
+
     background-image:linear-gradient(rgba(34,211,238,.055) 1px,transparent 1px),
+
                      linear-gradient(90deg,rgba(34,211,238,.055) 1px,transparent 1px);
+
     background-size:44px 44px;
+
     mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%);
+
     -webkit-mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%)}
+
   @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+
   @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
 
+
+
   header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+
     background:rgba(5,7,15,.72);border-bottom:1px solid rgba(34,211,238,.14)}
+
   .nav{max-width:var(--maxw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+
   .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#eafcff;letter-spacing:.5px;text-decoration:none}
+
   .brand svg{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+
   .nav .links{margin-left:auto;display:flex;gap:18px;font-size:14px}
+
   .nav a{color:var(--dim);text-decoration:none;transition:color .2s}
+
   .nav a:hover{color:var(--accent)}
 
+
+
   section{max-width:var(--maxw);margin:0 auto;padding:60px 20px}
+
   .hero{padding-top:70px;padding-bottom:30px}
+
   .tagline{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:12px}
+
   .hero h1{font-size:clamp(34px,8vw,56px);line-height:1.15;font-weight:800;letter-spacing:1px;
+
     background:linear-gradient(100deg,#eafcff 0%,var(--accent) 45%,var(--accent2) 100%);
+
     -webkit-background-clip:text;background-clip:text;color:transparent;
+
     filter:drop-shadow(0 0 22px rgba(34,211,238,.26))}
+
   .hero p.lead{margin-top:18px;font-size:16px;color:var(--dim);max-width:640px}
+
   .hero p.lead b{color:var(--text);font-weight:600}
 
+
+
   h2{font-size:20px;color:#eafcff;margin:46px 0 20px;display:flex;align-items:center;gap:11px}
+
   h2::before{content:"";width:4px;height:19px;border-radius:2px;
+
     background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.7)}
+
   p.body{font-size:14.5px;color:var(--dim);max-width:680px}
+
   p.body b{color:var(--text);font-weight:600}
 
+
+
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:6px}
+
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;
+
     transition:transform .2s,border-color .25s,box-shadow .3s}
+
   .card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.55);box-shadow:0 14px 34px rgba(3,8,20,.7)}
+
   .card .n{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:1px}
+
   .card h3{font-size:16px;color:#eafcff;margin:8px 0 8px}
+
   .card p{font-size:13.5px;color:var(--dim)}
 
+
+
   ol.steps{counter-reset:s;list-style:none;padding:0;margin-top:6px;max-width:680px}
+
   ol.steps li{position:relative;padding:12px 0 12px 46px;border-bottom:1px dashed rgba(34,211,238,.14);font-size:14.5px;color:var(--dim)}
+
   ol.steps li:last-child{border-bottom:none}
+
   ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:11px;
+
     width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;color:#eafcff;
+
     background:linear-gradient(140deg,rgba(34,211,238,.18),rgba(167,139,250,.18));border:1px solid var(--line)}
+
   ol.steps li b{color:var(--text);font-weight:600}
+
   ol.steps code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13px;color:#9fe9f7;
+
     background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.28);border-radius:6px;padding:1px 7px}
 
+
+
   .note{margin-top:14px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.28);
+
     border-radius:12px;padding:16px 18px;font-size:13.5px;color:#cbbdf2;max-width:680px}
+
   .note b{color:#e6dcff}
 
+
+
   /* ---------- 下载 ---------- */
+
   .dl{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:16px;
+
     padding:28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+
     background-image:linear-gradient(140deg,rgba(34,211,238,.10),transparent 60%)}
+
   .dl .meta{flex:1;min-width:220px}
+
   .dl .meta .name{font-size:18px;color:#eafcff;font-weight:700}
+
   .dl .meta .sub{font-size:13px;color:var(--dim);margin-top:6px}
+
   .btn{padding:13px 26px;border-radius:11px;text-decoration:none;font-size:15px;font-weight:700;
+
     transition:transform .18s,box-shadow .25s,background .25s;display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
+
   .btn.primary{background:linear-gradient(90deg,#1b8fb3,#6d4fc4);color:#eafcff;border:1px solid #5fe9ff}
+
   .btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(34,211,238,.45)}
+
   .btn.green{background:linear-gradient(90deg,#1f9d5a,#15b06a);color:#eafff3;border:1px solid #4be39a}
+
   .btn.green:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(63,185,80,.4)}
+
   .btn.violet{background:linear-gradient(90deg,#6d4fc4,#9a6fe0);color:#f4efff;border:1px solid #c9a8ff}
+
   .btn.violet:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(167,139,250,.4)}
 
+
+
   footer{border-top:1px solid rgba(34,211,238,.12);margin-top:40px}
+
   footer .inner{max-width:var(--maxw);margin:0 auto;padding:26px 20px;
+
     font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center}
+
   footer a{color:var(--dim);text-decoration:none}
+
   footer a:hover{color:var(--accent)}
+
   .wx{color:#c9d1d9}
+
   .wx b{color:#eafcff;font-family:"SFMono-Regular",Consolas,Menlo,monospace;letter-spacing:1px}
 
+
+
   .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+
   .reveal.on{opacity:1;transform:none}
+
   @media (max-width:620px){
+
     section{padding:46px 18px}
+
     .nav .links{gap:14px;font-size:13px}
+
     .dl{padding:20px}
+
   }
+
   @media (prefers-reduced-motion:reduce){
+
     *{animation:none!important;transition:none!important}
+
     .reveal{opacity:1;transform:none}
+
   }
-</style>
+
+  /* ---------- 更新日志弹窗 ---------- */
+  .modal-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;
+    background:rgba(3,6,16,.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    padding:6vh 16px;overflow-y:auto}
+  .modal-overlay.open{display:flex}
+  .modal{width:100%;max-width:680px;background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    padding:24px 26px 28px;box-shadow:0 24px 70px rgba(0,0,0,.6);position:relative;margin:auto 0}
+  .modal h3{font-size:18px;color:#eafcff;margin-bottom:2px}
+  .modal .sub{font-size:12.5px;color:var(--dim);margin-bottom:14px}
+  .modal .close{position:absolute;top:14px;right:16px;width:34px;height:34px;border-radius:9px;
+    border:1px solid var(--line);background:rgba(34,211,238,.08);color:var(--text);font-size:20px;line-height:1;cursor:pointer;
+    display:grid;place-items:center;transition:background .2s,border-color .2s}
+  .modal .close:hover{background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.5)}
+  .modal .cl-body{max-height:64vh;overflow-y:auto;padding-right:6px}
+  .modal .cl{border-left:2px solid var(--line);padding:2px 0 16px 18px;position:relative}
+  .modal .cl::before{content:"";position:absolute;left:-7px;top:9px;width:11px;height:11px;border-radius:50%;
+    background:linear-gradient(140deg,var(--accent),var(--accent2));box-shadow:0 0 9px rgba(34,211,238,.6)}
+  .modal .cl .top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  .modal .cl .v{font-size:14.5px;color:#eafcff;font-weight:800}
+  .modal .cl .v.latest{color:var(--accent)}
+  .modal .cl .date{font-size:11.5px;color:var(--dim)}
+  .modal .cl ul{margin:5px 0 0;padding-left:17px;font-size:12.8px;color:var(--dim)}
+  .modal .cl li{margin:2px 0}
+  .modal .cl b{color:var(--text);font-weight:600}
+  .modal .cl code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12px;color:#9fe9f7;
+    background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.28);border-radius:6px;padding:1px 5px}
+  .modal .cl .note{font-size:11.5px;color:#cbbdf2;margin-top:5px;background:rgba(167,139,250,.07);
+    border:1px solid rgba(167,139,250,.24);border-radius:8px;padding:7px 10px}
+  .modal .fullpage{display:inline-block;margin-top:8px;font-size:13px;color:var(--accent);text-decoration:none}
+  .modal .fullpage:hover{text-decoration:underline}
+  .modal .cl-body::-webkit-scrollbar{width:8px}
+  .modal .cl-body::-webkit-scrollbar-thumb{background:rgba(34,211,238,.3);border-radius:4px}
+</style></style>
+
 </head>
+
 <body>
+
+
 
 <div class="bg"><div class="orb a"></div><div class="orb b"></div><div class="grid"></div></div>
 
+
+
 <header>
+
   <nav class="nav">
+
     <a class="brand" href="index.html">
+
       <svg viewBox="0 0 32 32" aria-hidden="true">
+
         <circle cx="16" cy="16" r="13" fill="none" stroke="#22d3ee" stroke-width="2.6"/>
+
         <path d="M16 3a13 13 0 0 0 0 26z" fill="#a78bfa"/>
+
       </svg>
+
       单面本面
+
     </a>
+
     <div class="links">
+
       <a href="index.html">主页</a>
+
+      <a href="changelog.html">更新日志</a>
+
       <a href="#download">下载</a>
+
     </div>
+
   </nav>
+
 </header>
+
+
 
 <main>
 
+
+
   <!-- ================= Hero ================= -->
+
   <section class="hero">
+
     <div class="tagline">SECURITY RESEARCH · PC 驱动 · iPad 执行</div>
+
     <h1>RyConsole Autorun</h1>
+
     <p class="lead">
+
       一个 <b>Windows 命令行工具</b>：让 AI 在电脑端把 <b>JS 探针</b> 发到局域网里的 iPad
+
       （<b>RyConsole</b> App）执行，再把结果回传。用来给 iOS 安全研究做
+
       <b>自测与动态验证</b>——复杂的研究，也能在自己手上跑起来。
+
     </p>
+
   </section>
+
+
 
   <!-- ================= 这是什么 ================= -->
+
   <section class="reveal">
+
     <h2>这是什么</h2>
+
     <p class="body">
+
       它是一套<b>两端协作</b>的自测系统：iPad 上跑 <b>RyConsole</b> 的研究控制台（内置 AutorunServer，监听
+
       8899 端口），电脑上跑这个 <b>ryc_autorun</b> 客户端。AI 在电脑端组织好要跑的 JS 探针，
+
       通过局域网发给 iPad 执行，iPad 把打印和返回值回传，AI 再接着分析。整套链路
+
       <b>纯本地局域网</b>，探针只在你自己的设备沙盒里跑，不需要把代码传到任何云端。
+
     </p>
+
   </section>
+
+
 
   <!-- ================= 能做什么 ================= -->
+
   <section class="reveal">
+
     <h2>能做什么</h2>
+
     <div class="cards">
+
       <div class="card">
+
         <div class="n">01</div>
+
         <h3>局域网直连</h3>
+
         <p>ping / run / eval / submit / result 五个子命令，覆盖连通测试到结果轮询的完整流程。</p>
+
       </div>
+
       <div class="card">
+
         <div class="n">02</div>
+
         <h3>单文件 exe</h3>
+
         <p>打包成约 8.1 MB 的独立 exe，<b>不需要任何 Python 环境</b>，双击即用、可随 U 盘带走。</p>
+
       </div>
+
       <div class="card">
+
         <div class="n">03</div>
+
         <h3>极简协议</h3>
+
         <p>走极简 HTTP，纯标准库实现，<b>无第三方依赖</b>，源码一眼能审完。</p>
+
       </div>
+
       <div class="card">
+
         <div class="n">04</div>
+
         <h3>AI 可驱动</h3>
+
         <p>配套 ryconsole-autorun Skill，AI 加载后会先问清 exe 位置，再自动连设备、发探针、解析回传。</p>
+
       </div>
+
       <div class="card">
+
         <div class="n">05</div>
+
         <h3>安全边界</h3>
+
         <p>只在自己拥有 / 授权的设备上使用，探针运行于 App 沙盒内，并附 Responsible Disclosure 声明。</p>
+
       </div>
+
       <div class="card">
+
         <div class="n">06</div>
+
         <h3>开源可审</h3>
+
         <p>客户端源码完全公开，iPad 端原生桥原语（jb* / iokit*）清单透明，研究者可自行核验。</p>
+
       </div>
+
     </div>
+
   </section>
+
+
 
   <!-- ================= 怎么用 ================= -->
+
   <section class="reveal">
+
     <h2>怎么用</h2>
+
     <ol class="steps">
+
       <li>在 iPad / iPhone 上装好 <b>RyConsole</b>（未签名 IPA 侧载），打开 App。</li>
+
       <li>左侧 <b>Autorun</b> 面板点「启动监听」，等圆点变绿、显示 <code>:8899</code>。</li>
+
       <li>电脑上下载 <b>ryc_autorun.exe</b>，终端先测连通：<code>ryc_autorun.exe ping --host &lt;iPadIP&gt;</code>。</li>
+
       <li>发探针：<code>ryc_autorun.exe run --host &lt;iPadIP&gt; --code-file probe_env.js --json --quiet</code>。</li>
+
       <li>等 iPad 回传（客户端自动轮询，默认 3s×12；长探针可 <code>--interval/--max-polls</code> 自定义，一把等到底），终端打印执行结果与返回值。</li>
+
     </ol>
+
     <div class="note">
+
       <b>关于监听（V2.2 起已解决后台挂起）：</b>点「启动监听」后 App 自动进入<b>保活态</b> ——
+
       静音音频循环 + 后台任务续期，此时<b>可以切后台、可以锁屏</b>，电脑端仍能连上；
+
       灵动岛 / 锁屏上会显示「监听中」+ 端口 + 连接数 + 已运行时长。<b>停止监听即释放保活</b>，不做后台偷跑。
+
       连不上时优先查：同一 Wi-Fi、端口没被占、iPad「本地网络」权限已允许。
+
     </div>
+
   </section>
+
+
 
   <!-- ================= 注意事项 ================= -->
+
   <section class="reveal">
+
     <h2>注意事项（说实话）</h2>
+
     <p class="body">
+
       它是 <b>自己设备上的研究自测通道</b>，不是越狱工具、也不是现成的漏洞利用。好处是
+
       <b>本地、可控、可复现</b>；代价是：App <b>本质还在沙盒里</b>——
+
       <b>externalMethod 有二次门禁</b>，"能连上（OPEN_OK）"不等于"可利用"，真要拿到内核原语还得走动态验证。
+
       做之前先想清楚你的研究目标，并只对自己拥有 / 授权的设备下手。
+
     </p>
+
     <div class="note">
+
       <b>它适合：</b>iOS 安全研究的自测、探针验证、AI 辅助的动态探索。<br>
+
       <b>它不适合：</b>对他人设备下手、绕过沙盒做未授权操作——那既违规也违法，本工具不提供也不鼓励。
+
     </div>
+
   </section>
+
+
 
   <!-- ================= 下载 ================= -->
+
   <section id="download" class="reveal">
+
     <h2>下载</h2>
+
     <div class="dl">
+
       <div class="meta">
+
         <div class="name">RyConsole Autorun（Windows）</div>
+
         <div class="sub">单文件 exe · 约 8.1 MB · 支持 Windows 10/11 · 内置全部依赖，双击即用</div>
+
       </div>
+
       <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/ryc_autorun.exe" download="ryc_autorun.exe">
+
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+
           <path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1 1v.5H3.5a1 1 0 0 1 0-2H5zm14 0a1 1 0 0 1 1 1v.5H18.5a1 1 0 0 1 0-2H19z"/>
+
         </svg>
+
         下载 Windows 版
+
       </a>
+
       <a class="btn primary" href="https://github.com/DanMianBenMian/RyConsole-Autorun" target="_blank" rel="noopener">
+
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+
           <path d="M12 1.5a10.5 10.5 0 0 0-3.32 20.46c.53.1.72-.23.72-.5v-1.9c-2.93.64-3.55-1.4-3.55-1.4-.48-1.22-1.17-1.54-1.17-1.54-.96-.66.07-.64.07-.64 1.06.07 1.62 1.08 1.62 1.08.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.67-1.4-2.34-.27-4.8-1.17-4.8-5.2 0-1.15.41-2.09 1.08-2.83-.11-.27-.47-1.34.1-2.8 0 0 .88-.28 2.88 1.08a10 10 0 0 1 5.24 0c2-1.36 2.88-1.08 2.88-1.08.57 1.46.21 2.53.1 2.8.68.74 1.08 1.68 1.08 2.83 0 4.04-2.46 4.93-4.81 5.19.38.33.72.97.72 1.96v2.9c0 .28.19.61.73.5A10.5 10.5 0 0 0 12 1.5z"/>
+
         </svg>
+
         查看开源仓库
+
       </a>
+
     </div>
+
     <div class="dl" style="margin-top:16px">
+
       <div class="meta">
+
         <div class="name">RyConsole（iPhone / iPad 通用）</div>
+
         <div class="sub">未签名 IPA · AutorunServer + <b>81</b> 个原生桥（ObjC 万用桥 / XPC 结构化桥 / <b>Tier 3 原生 Mach 竞态桥</b> portAlloc·vmAlloc·iokitCallPort / <b>FFI 直调</b> callPtr·callVariadic·syscallN / 读映射内存 memRead / dyld 符号 / 沙盒 / 钥匙串 / envCred）+ <b>监听期后台保活</b> + <b>灵动岛「监听中」实时活动</b> · 需侧载安装</div>
-        <div class="sub"><b>V2.4.21</b>：修 <code>callPtr</code> 变参缺陷 —— 新增 <code>callVariadic()</code> 真·ABI 上栈调用（<code>syscall</code> ≥1 实参不再返回假 EINVAL，失败附 <code>errno</code> 当场定性）+ <code>syscallN()</code> 受控入口（号段校验 + csops 死亡名单，越界不再 SIGSYS 杀进程）+ <code>{buf:}</code> 槽回传 <code>bufAddr</code></div>
-        <div class="sub"><b>V2.4.20</b>：<b>Tier 3 原生 Mach 竞态桥</b> —— mach_port 生命周期六桥 + vm_map 并发 + <code>iokitCallPort</code> 跳过用户态体检直发内核 · <code>envCred</code> 实时 UID/EUID 提权金丝雀 · envReset 无参不再误停监听</div>
-        <div class="sub"><b>V2.2.5</b>：<b>装桥/改桥不用重编重装</b> —— <code>tools/ryc_bridge.py list|versions|push|pushall|get|rm</code> · 8 个桥<b>自报版本</b>（一条命令查设备在跑哪版）· 33 个原语加<b>类型守卫</b>（不再吐英文 TypeError）· 修掉研究探针里整张错位的 kr 码表</div>
-        <div class="sub"><b>V2.2.4</b>：桥失败一律<b>自解释</b>（直接给「参数名 + 合法范围」）· 设备上敲 <code>primHelp()</code> 即可查原语手册 · <code>iokitMapTry()</code> 一键扫 memType · 崩溃日志 + <code>lastPrim</code> 点名</div>
+
+                <div class="sub" style="margin-top:8px">当前版本 <b style="color:#eafcff">V2.4.21</b> · 点下方「查看更新日志」看历代改动 →</div>
+
       </div>
+
       <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/RyConsole.ipa" download="RyConsole.ipa">
+
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+
           <path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1 1v.5H3.5a1 1 0 0 1 0-2H5zm14 0a1 1 0 0 1 1 1v.5H18.5a1 1 0 0 1 0-2H19z"/>
+
         </svg>
+
         下载 IPA
+
       </a>
-    </div>
-    <div class="dl" style="margin-top:16px">
-      <div class="meta">
-        <div class="name">Agent Skill（SKILL.md）</div>
-        <div class="sub">给 AI 看的操作手册 · 含协议契约、<b>81 个桥原语清单</b>、<b>错误自解释约定（<code>] error]</code> 判据 + <code>primHelp</code>）</b>、自定义轮询纪律、保活与灵动岛的坑点、全部实踩坑点 · 可直接装进 WorkBuddy / Claude 等 Agent</div>
-      </div>
-      <a class="btn violet" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/ryconsole-autorun-skill.zip" download="ryconsole-autorun-skill.zip">
+      <a class="btn violet" id="openChangelog" href="javascript:void(0)" role="button">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1 1v.5H3.5a1 1 0 0 1 0-2H5zm14 0a1 1 0 0 1 1 1v.5H18.5a1 1 0 0 1 0-2H19z"/>
+          <path d="M4 4h2v16H4zM8 7h12v2H8zM8 11h12v2H8zM8 15h12v2H8z"/>
         </svg>
-        下载 Skill
+        查看更新日志
       </a>
+
     </div>
+
+    <div class="dl" style="margin-top:16px">
+
+      <div class="meta">
+
+        <div class="name">Agent Skill（SKILL.md）</div>
+
+        <div class="sub">给 AI 看的操作手册 · 含协议契约、<b>81 个桥原语清单</b>、<b>错误自解释约定（<code>] error]</code> 判据 + <code>primHelp</code>）</b>、自定义轮询纪律、保活与灵动岛的坑点、全部实踩坑点 · 可直接装进 WorkBuddy / Claude 等 Agent</div>
+
+      </div>
+
+      <a class="btn violet" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/ryconsole-autorun-skill.zip" download="ryconsole-autorun-skill.zip">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+
+          <path d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1zM5 19a1 1 0 0 1 1 1v.5H3.5a1 1 0 0 1 0-2H5zm14 0a1 1 0 0 1 1 1v.5H18.5a1 1 0 0 1 0-2H19z"/>
+
+        </svg>
+
+        下载 Skill
+
+      </a>
+
+    </div>
+
     <p class="body" style="margin-top:14px;font-size:13px">
+
       开源仓库里含 <b>ryc_autorun.py</b> 源码、<b>probe_env.js</b> 示例探针与 <b>skill/SKILL.md</b>（Agent 操作手册，教你用的 AI 自己学会驱动 iPad）；Windows 用户直接下上面的 exe 即可，无需装 Python。
+
       下到的 <b>RyConsole.ipa</b> 是未签名通用包（iPhone / iPad 均可装），需要你用自己的<b>自签证书 / 巨魔(TrollStore) / 企业证书</b>侧载——这是 iOS 侧载的常规操作，不是本工具代为签名。
+
     </p>
+
   </section>
 
-</main>
+
+
+  <!-- ===== 更新日志弹窗 ===== -->
+  <div class="modal-overlay" id="changelogModal" role="dialog" aria-modal="true" aria-label="RyConsole 更新日志">
+    <div class="modal">
+      <button class="close" id="closeChangelog" aria-label="关闭">×</button>
+      <h3>RyConsole 更新日志</h3>
+      <div class="sub">从 V2 到最新版 V2.4.21 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.21</b></div>
+      <div class="cl-body">
+        <div class="cl"><div class="top"><span class="v latest">V2.4.21</span><span class="date">2026-09-25</span></div>
+          <ul><li>★ <b>callPtr 变参缺陷修复</b>：旧 callPtr 用固定原型分发 → syscall ≥1 实参静默返回假 EINVAL。</li>
+          <li>新增 <code>callVariadic()</code>（真·ABI 上栈，errno 透传）+ <code>syscallN()</code>（号段校验 + csops 死亡名单）。</li>
+          <li>原生原语 <b>79 → 81</b>。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.20</span><span class="date">2026-09-25</span></div>
+          <ul><li>★ <b>Tier 3 原生 Mach 竞态桥</b>：解锁被用户态体检封死的 ipc_port/vm_map 内核竞态面。</li>
+          <li>新增 9 原语（portAlloc·portInsertRight·portDealloc·portDestroy·portModRefs·portType + vmAlloc·vmDealloc + iokitCallPort 跳过体检直发内核）。</li>
+          <li>原语 <b>70 → 79</b>。⚠️ Mach/vm UAF 可能触发 kernel panic。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.19</span><span class="date">2026-09-25</span></div>
+          <ul><li>★ <b>envReset 回归修复</b>（JSC 桥转换坑）：无参 envReset() 真机竟停服务端，改 JSValue 参数 + 判空兜底。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.18</span><span class="date">2026-09-25</span></div>
+          <ul><li>★ 新增 <code>envCred()</code> 身份原语（uid/euid 拆开报，实时 LPE 金丝雀）+ 修复 liveHits 灵动岛焊接 Bug。</li>
+          <li><code>build_ui.py</code> 推送清单修复（漏推 Swift 文件）。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.17</span><span class="date">2026-09-25</span></div>
+          <ul><li>「复制地址」改弹窗选择（Wi-Fi / 热点 / 蜂窝各自地址）。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.16</span><span class="date">2026-09-25</span></div>
+          <ul><li>★ <b>真正的优先级 Bug 修复</b>：按 pri 顺序逐个接口名查找，Autorun 面板列出全部地址。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.15</span><span class="date">2026-09-25</span></div>
+          <ul><li>★ <b>重置环境不再停服务端</b>（半自动工作流不被打断）。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.14</span><span class="date">2026-09-25</span></div>
+          <ul><li>★ 网络端点分类 + 优先级（Wi-Fi 优先）+ 新增 <code>envNet()</code> / <code>/ping</code> 加 <code>endpoints</code>。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.0 – V2.4.13</span><span class="date">2026-08 ~ 09</span></div>
+          <ul><li>环境 / 网络 / 保活体系建立期，逐版本细节以 V2.4.14 起的版本表为权威。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.3.0</span><span class="date">2026-08</span></div>
+          <ul><li>★ <b>callPtr（C 函数指针 FFI）</b>：补齐 dlopen/dlsym 后最后一环。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.2.7</span><span class="date">2026-08</span></div>
+          <ul><li>★ 崩溃兜底<b>生效修复</b>：sigsetjmp 双返回根因（V2.2.6 实测未生效）。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.2.6</span><span class="date">2026-08</span></div>
+          <ul><li>崩溃兜底初版：用户态信号崩溃不再重启进程（初版有缺陷）。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.2.5</span><span class="date">2026-08</span></div>
+          <ul><li>★ <b>装桥/改桥不用重编重装</b>（ryc_bridge.py）+ 33 原语类型守卫 + kr 码表修正。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.2.4</span><span class="date">2026-08</span></div>
+          <ul><li>桥失败自解释 + <code>primHelp()</code> + <code>iokitMapTry()</code>。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.2</span><span class="date">2026-07 ~ 08</span></div>
+          <ul><li><code>memRead</code> + 后台保活 + 灵动岛「监听中」。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.1</span><span class="date">2026-07</span></div>
+          <ul><li>ObjC runtime 桥（objc_getClass / sel_registerName / objc_msgSend / objcDesc）。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2</span><span class="date">2026-07-26</span></div>
+          <ul><li>RyConsole 研究控制台诞生；结构化 XPC + machLookUp + dyld + sandboxCheck + keychainProbe + procListPids + posixSpawn。</li></ul></div>
+        <a class="fullpage" href="changelog.html" target="_blank" rel="noopener">在独立页面查看完整更新日志 →</a>
+      </div>
+    </div>
+  </div>
+
+</main></main>
+
+
 
 <footer>
+
   <div class="inner">
+
     <span>© 2026 单面本面 · <a href="index.html">返回主页</a></span>
+
     <span class="wx">微信：<b>baoma20140906</b></span>
+
   </div>
+
 </footer>
 
+
+
 <script>
+
   (function () {
+
     var els = document.querySelectorAll('.reveal');
+
     if (!('IntersectionObserver' in window)) {
+
       els.forEach(function (e) { e.classList.add('on'); });
+
       return;
+
     }
+
     var io = new IntersectionObserver(function (entries) {
+
       entries.forEach(function (en) {
+
         if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); }
+
       });
+
     }, { threshold: 0.12 });
+
     els.forEach(function (e) { io.observe(e); });
+
+  })();
+
+
+  (function () {
+    var ov = document.getElementById('changelogModal');
+    var openBtn = document.getElementById('openChangelog');
+    var closeBtn = document.getElementById('closeChangelog');
+    function show() { ov.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function hide() { ov.classList.remove('open'); document.body.style.overflow = ''; }
+    if (openBtn) openBtn.addEventListener('click', function (e) { e.preventDefault(); show(); });
+    if (closeBtn) closeBtn.addEventListener('click', hide);
+    if (ov) ov.addEventListener('click', function (e) { if (e.target === ov) hide(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && ov && ov.classList.contains('open')) hide();
+    });
   })();
 </script>
+
 </body>
+
 </html>
+
