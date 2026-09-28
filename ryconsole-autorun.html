@@ -504,6 +504,28 @@
 
 
 
+  <!-- ================= Skill 指南 ================= -->
+  <section class="reveal">
+    <h2>Skill 指南</h2>
+    <p class="body">
+      这两个 <b>Agent Skill</b> 把 RyConsole 的两条核心能力沉淀成可复用的操作手册 —— 装进 WorkBuddy / Claude 等 AI Agent 后，AI 会自动按手册驱动设备。
+    </p>
+    <div class="cards">
+      <div class="card">
+        <div class="n">Agent</div>
+        <h3>Agent 指南（RyConsole Autorun）</h3>
+        <p>AI 在电脑端把 JS 探针发到 iPad 执行并取回结果。含协议契约、81 个桥原语清单、错误自解释约定、轮询纪律、保活与灵动岛坑点 —— 让 AI 真正学会用你的 iPad 当「执行手」。</p>
+        <a class="btn violet" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/ryconsole-autorun-skill.zip" download="ryconsole-autorun-skill.zip" style="margin-top:14px">下载 Agent 指南 Skill</a>
+      </div>
+      <div class="card">
+        <div class="n">穿透</div>
+        <h3>Cloudflare 穿透（Quick Tunnel）</h3>
+        <p>国内移动宽带下 <b>零注册、零实名、零银行卡</b> 的公网穿透方案。cloudflared quick tunnel 一键拉起，外网设备访问家里 PC。含安装、URL 解析、替代方案判死记录与排查顺序。</p>
+        <a class="btn violet" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/cloudflare-quick-tunnel-skill.zip" download="cloudflare-quick-tunnel-skill.zip" style="margin-top:14px">下载 Cloudflare 穿透 Skill</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= 下载 ================= -->
 
   <section id="download" class="reveal">
@@ -554,7 +576,7 @@
 
         <div class="sub">未签名 IPA · AutorunServer + <b>81</b> 个原生桥（ObjC 万用桥 / XPC 结构化桥 / <b>Tier 3 原生 Mach 竞态桥</b> portAlloc·vmAlloc·iokitCallPort / <b>FFI 直调</b> callPtr·callVariadic·syscallN / 读映射内存 memRead / dyld 符号 / 沙盒 / 钥匙串 / envCred）+ <b>监听期后台保活</b> + <b>灵动岛「监听中」实时活动</b> · 需侧载安装</div>
 
-                <div class="sub" style="margin-top:8px">当前版本 <b style="color:#eafcff">V2.4.23</b> · 点下方「查看更新日志」看历代改动 →</div>
+                <div class="sub" style="margin-top:8px">当前版本 <b style="color:#eafcff">V2.4.24</b> · 点下方「查看更新日志」看历代改动 →</div>
 
       </div>
 
@@ -619,9 +641,13 @@
     <div class="modal">
       <button class="close" id="closeChangelog" aria-label="关闭">×</button>
       <h3>RyConsole 更新日志</h3>
-      <div class="sub">从 V2 到最新版 V2.4.22 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.23</b></div>
+      <div class="sub">从 V2 到最新版 V2.4.22 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.24</b></div>
       <div class="cl-body">
-        <div class="cl"><div class="top"><span class="v latest">V2.4.23</span><span class="date">2026-09-25</span><span class="tag">最新</span></div>
+        <div class="cl"><div class="top"><span class="v latest">V2.4.24</span><span class="date">2026-09-28</span><span class="tag">最新</span></div>
+          <ul><li>★ <b>远程连接（RyConsoleServer + Cloudflare quick tunnel 穿透）</b>：iPad 经公网隧道连家里 PC，PC 推 JS 在 iPad 的专用 <code>ryc-remote</code> 上下文执行并回传，实验室外（学校 4G / 蜂窝）也能跑。</li>
+          <li>★ <b>远程保活 + 灵动岛「远程连接中」</b>：完全镜像监听架构 —— 点「连接」即拉起静音音频后台保活 + 独立实时活动（☁️ 蓝色云图标），划出 App 不再 60s 掉线；WS 不可达时自动降级 HTTP 长轮询。</li>
+          <li>监听 / 远程互斥：同时只能开一个，开启另一个会先提示并踢掉当前。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.23</span><span class="date">2026-09-25</span></div>
           <ul><li>★ <b>回退 callPtr 到固定元数</b>：2.4.22 让 callPtr 走变参通道，导致固定元数 libc（memset / kill / mmap 等）的 x1–x7 实参被破坏、多参调用结果错误（回归）。现 callPtr 回到固定元数寄存器传参，多参 / syscall 恢复正常；真变参（printf 等）仍走 <code>callVariadic</code>，受控 syscall 走 <code>syscallN</code>。</li>
           <li>errno 两条路径失败都附（坏 pid 可验 errno=3 ESRCH）；原生原语合计 <b>81</b>。</li></ul></div>
         <div class="cl"><div class="top"><span class="v">V2.4.22</span><span class="date">2026-09-25</span></div>
