@@ -105,7 +105,7 @@
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.23</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.24</b>。</p>
   </section>
 
   <section class="reveal">
@@ -113,7 +113,16 @@
     <div class="timeline">
 
       <div class="cl">
-        <div class="top"><span class="v latest">V2.4.23</span><span class="date">2026-09-25</span><span class="tag">最新</span></div>
+        <div class="top"><span class="v latest">V2.4.24</span><span class="date">2026-09-28</span><span class="tag">最新</span></div>
+        <ul>
+          <li>★ <b>远程连接（RyConsoleServer + Cloudflare quick tunnel 穿透）</b>：iPad 经公网隧道连家里 PC，PC 推 JS 在 iPad 的专用 <code>ryc-remote</code> 上下文执行并回传，实验室外（学校 4G / 蜂窝）也能跑。</li>
+          <li>★ <b>远程保活 + 灵动岛「远程连接中」</b>：完全镜像监听架构 —— 点「连接」即拉起静音音频后台保活 + 独立实时活动（☁️ 蓝色云图标），划出 App 不再 60s 掉线；WS 不可达时自动降级 HTTP 长轮询。</li>
+          <li>监听 / 远程互斥：同时只能开一个，开启另一个会先提示并踢掉当前。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.23</span><span class="date">2026-09-25</span></div>
         <ul>
           <li>★ <b>回退 callPtr 到固定元数</b>：2.4.22 让 callPtr 走变参通道，固定元数 libc（memset / kill / mmap 等）x1–x7 实参被破坏、多参结果错误（回归）。现 callPtr 回固定元数寄存器传参，多参 / syscall 恢复正常；真变参（printf 等）仍走 <code>callVariadic</code>，受控 syscall 走 <code>syscallN</code>。</li>
           <li>errno 两条路径失败都附（坏 pid 可验 errno=3 ESRCH）；原生原语合计 <b>81</b>。</li>
