@@ -576,11 +576,11 @@
 
         <div class="sub">未签名 IPA · AutorunServer + <b>81</b> 个原生桥（ObjC 万用桥 / XPC 结构化桥 / <b>Tier 3 原生 Mach 竞态桥</b> portAlloc·vmAlloc·iokitCallPort / <b>FFI 直调</b> callPtr·callVariadic·syscallN / 读映射内存 memRead / dyld 符号 / 沙盒 / 钥匙串 / envCred）+ <b>监听期后台保活</b> + <b>灵动岛「监听中」实时活动</b> · 需侧载安装</div>
 
-                <div class="sub" style="margin-top:8px">当前版本 <b style="color:#eafcff">V2.4.25</b> · 点下方「查看更新日志」看历代改动 →</div>
+                <div class="sub" style="margin-top:8px">当前版本 <b style="color:#eafcff">V2.4.26</b> · 点下方「查看更新日志」看历代改动 →</div>
 
       </div>
 
-      <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2425/RyConsole-v2.4.25.ipa" download="RyConsole-v2.4.25.ipa">
+      <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2426/RyConsole-v2.4.26.ipa" download="RyConsole-v2.4.26.ipa">
 
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 
@@ -618,9 +618,12 @@
     <div class="modal">
       <button class="close" id="closeChangelog" aria-label="关闭">×</button>
       <h3>RyConsole 更新日志</h3>
-      <div class="sub">从 V2 到最新版 V2.4.25 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.25</b></div>
+      <div class="sub">从 V2 到最新版 V2.4.26 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.26</b></div>
       <div class="cl-body">
-        <div class="cl"><div class="top"><span class="v latest">V2.4.25</span><span class="date">2026-09-29</span><span class="tag">最新</span></div>
+        <div class="cl"><div class="top"><span class="v latest">V2.4.26</span><span class="date">2026-09-29</span><span class="tag">最新</span></div>
+          <ul><li>★ <b>远程连接模式补上本机日志 + 侧栏状态</b>：之前远程模式下 PC 推来的探针 / <code>print</code> 输出 / <code>result</code> 回传只发回 PC，本机面板看不到；现 iPad 端加环形日志缓冲，三处埋点（收到 <code>push_js</code> 代码、<code>print</code> 输出、<code>result</code> 回传）实时显示在「连接日志 / 执行输出」面板，与监听模式一致。</li>
+          <li>★ <b>侧栏左下角状态镜像监听</b>：远程连接中显示「● 远程连接中」（琥珀）/ 已连接显示「● 远程已连接」（绿）/ 未开显示「● 未启动」（灰），不再连上了仍灰着。</li></ul></div>
+        <div class="cl"><div class="top"><span class="v">V2.4.25</span><span class="date">2026-09-29</span></div>
           <ul><li>★ <b>修复远程连接模式顶层 <code>return</code> 非法</b>：之前远程执行路径直接 <code>evaluateScript</code> 全局 eval，顶层 <code>return</code> 触发 SyntaxError 整段失败；现与局域网 / Autorun 模式一致走 <code>RYC_RUN</code>（engine.js 包裹），支持 <code>return</code> 回传结果。</li>
           <li>零副作用：保留全局 <code>var</code> 跨 <code>push_js</code> 共享，仅补上 <code>return</code> 支持；与 V2.4.24 的远程连接 / 保活 / 灵动岛能力完全兼容。</li></ul></div>
         <div class="cl"><div class="top"><span class="v">V2.4.24</span><span class="date">2026-09-28</span></div>
