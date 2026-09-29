@@ -105,7 +105,7 @@
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.24</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.25</b>。</p>
   </section>
 
   <section class="reveal">
@@ -113,7 +113,15 @@
     <div class="timeline">
 
       <div class="cl">
-        <div class="top"><span class="v latest">V2.4.24</span><span class="date">2026-09-28</span><span class="tag">最新</span></div>
+        <div class="top"><span class="v latest">V2.4.25</span><span class="date">2026-09-29</span><span class="tag">最新</span></div>
+        <ul>
+          <li>★ <b>修复远程连接模式顶层 <code>return</code> 非法</b>：之前远程执行路径直接 <code>evaluateScript</code> 全局 eval，顶层 <code>return</code> 触发 SyntaxError 整段失败；现与局域网 / Autorun 模式一致走 <code>RYC_RUN</code>（engine.js 包裹），支持 <code>return</code> 回传结果。</li>
+          <li>零副作用：保留全局 <code>var</code> 跨 <code>push_js</code> 共享，仅补上 <code>return</code> 支持；与 V2.4.24 的远程连接 / 保活 / 灵动岛能力完全兼容。</li>
+        </ul>
+      </div>
+
+      <div class="cl">
+        <div class="top"><span class="v">V2.4.24</span><span class="date">2026-09-28</span></div>
         <ul>
           <li>★ <b>远程连接（RyConsoleServer + Cloudflare quick tunnel 穿透）</b>：iPad 经公网隧道连家里 PC，PC 推 JS 在 iPad 的专用 <code>ryc-remote</code> 上下文执行并回传，实验室外（学校 4G / 蜂窝）也能跑。</li>
           <li>★ <b>远程保活 + 灵动岛「远程连接中」</b>：完全镜像监听架构 —— 点「连接」即拉起静音音频后台保活 + 独立实时活动（☁️ 蓝色云图标），划出 App 不再 60s 掉线；WS 不可达时自动降级 HTTP 长轮询。</li>
@@ -288,7 +296,7 @@
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.23</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.25</b></span>
   </div>
 </footer>
 
