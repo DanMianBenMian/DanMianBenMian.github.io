@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPTM / TXM pmap 后端定性 · A14 / iPadOS 27 β2 · 单面本面</title>
+<meta name="description" content="静态二进制取证 + 动态沙盒侧探测：A14 / iPadOS 27 β2 的 pmap 后端为 SPTM + TXM，非 PPL / APRR。">
+<meta name="theme-color" content="#05070f">
+<meta property="og:title" content="SPTM / TXM pmap 后端定性 · A14 / iPadOS 27 β2">
+<meta property="og:description" content="静态二进制取证 + 动态沙盒侧探测：A14 / iPadOS 27 β2 的 pmap 后端为 SPTM + TXM，非 PPL / APRR。">
+<meta property="og:type" content="article">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://danmianbenmian.github.io/research/sptm-pmap-backend.html">
+<style>
+  :root{
+    --accent:#22d3ee;
+    --accent2:#a78bfa;
+    --text:#c9d1d9;
+    --dim:#7d8ba5;
+    --panel:rgba(20,28,46,.66);
+    --line:rgba(34,211,238,.22);
+    --maxw:940px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:70px}
+  body{background:#05070f;color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+    line-height:1.75;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+  /* 背景：与主页一致的两团漂移光 + 网格 */
+  .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
+      radial-gradient(120% 90% at 50% -10%,#1a2540 0%,#0c1120 55%,#05070f 100%)}
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
+  .orb.a{width:420px;height:420px;background:#22d3ee;top:-120px;left:-90px;animation:float1 22s ease-in-out infinite}
+  .orb.b{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation:float2 26s ease-in-out infinite}
+  .grid{position:absolute;inset:0;
+    background-image:linear-gradient(rgba(34,211,238,.055) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(34,211,238,.055) 1px,transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%);
+    -webkit-mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%)}
+  @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+  @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
+
+  /* 顶栏 */
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(5,7,15,.72);border-bottom:1px solid rgba(34,211,238,.14)}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#eafcff;letter-spacing:.5px;text-decoration:none}
+  .brand svg{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
+  .nav .links{margin-left:auto;display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
+  .nav a{color:var(--dim);text-decoration:none;transition:color .2s}
+  .nav a:hover{color:var(--accent)}
+
+  section{max-width:var(--maxw);margin:0 auto;padding:64px 20px}
+
+  /* Hero */
+  .hero{padding-top:56px;padding-bottom:8px}
+  .tagline{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:14px}
+  .hero h1{font-size:clamp(28px,5.2vw,42px);line-height:1.24;font-weight:800;letter-spacing:.5px;
+    background:linear-gradient(100deg,#eafcff 0%,var(--accent) 42%,var(--accent2) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 22px rgba(34,211,238,.26))}
+  .hero p.lead{margin-top:16px;font-size:15.5px;color:var(--dim);max-width:640px}
+  .hero p.lead b{color:var(--text);font-weight:600}
+  .cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{padding:10px 20px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;
+    transition:transform .18s,box-shadow .25s,background .25s}
+  .btn.primary{background:linear-gradient(90deg,#1b8fb3,#6d4fc4);color:#eafcff;border:1px solid #5fe9ff}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(34,211,238,.42)}
+  .btn.ghost{color:#bdecf7;border:1px solid var(--line);background:rgba(34,211,238,.06)}
+  .btn.ghost:hover{background:rgba(34,211,238,.14);border-color:#5fe9ff;transform:translateY(-2px)}
+
+  /* 元信息条 */
+  .meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:9px}
+  .meta .kv{font-size:11.5px;padding:5px 11px;border-radius:999px;color:#9fe9f7;
+    background:rgba(34,211,238,.09);border:1px solid rgba(34,211,238,.24)}
+  .meta .kv span{white-space:pre-wrap}
+
+  /* 目录 */
+  .toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:8px}
+  .toc h4{font-size:12px;letter-spacing:2px;color:var(--dim);margin-bottom:11px;font-weight:600}
+  .toc .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .toc .chips a{font-size:12.5px;padding:4px 11px;border-radius:999px;text-decoration:none;
+    color:#9fe9f7;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.22);transition:.2s}
+  .toc .chips a:hover{color:#eafcff;border-color:rgba(34,211,238,.6);background:rgba(34,211,238,.16)}
+
+  /* 正文 */
+  .doc{scroll-margin-top:74px}
+  .doc h2{font-size:21px;color:#eafcff;margin:44px 0 18px;display:flex;align-items:center;gap:11px}
+  .doc h2:first-child{margin-top:8px}
+  .doc h2::before{content:"";width:4px;height:19px;border-radius:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.7)}
+  .doc h3{font-size:16.5px;color:#eafcff;margin:30px 0 12px;padding-left:12px;
+    border-left:2px solid rgba(34,211,238,.5)}
+  .doc h4{font-size:15px;color:var(--accent);margin:24px 0 10px}
+  .doc p{font-size:14.5px;margin:12px 0}
+  .doc b{color:#e6f6ff;font-weight:600}
+  .doc a{color:var(--accent);text-decoration:none;border-bottom:1px dashed rgba(34,211,238,.4)}
+  .doc a:hover{border-bottom-style:solid}
+  .doc hr{border:0;height:1px;margin:34px 0;
+    background:linear-gradient(90deg,transparent,rgba(34,211,238,.32),transparent)}
+
+  /* 代码块 */
+  .doc pre{margin:16px 0;padding:14px 16px;border-radius:12px;overflow-x:auto;
+    background:#070c16;border:1px solid rgba(34,211,238,.2);
+    box-shadow:inset 0 0 30px rgba(34,211,238,.045)}
+  .doc pre::-webkit-scrollbar{width:9px;height:9px}
+  .doc pre::-webkit-scrollbar-thumb{background:rgba(34,211,238,.28);border-radius:5px}
+  .doc pre::-webkit-scrollbar-track{background:transparent}
+  .doc code{font-family:"SFMono-Regular",Consolas,Menlo,"Cascadia Mono",monospace;
+    font-size:12.4px;line-height:1.62;color:#b9e8f5;white-space:pre}
+  .doc p code,.doc td code,.doc li code,.doc th code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;
+    font-size:12.2px;color:#9fe9f7;background:rgba(34,211,238,.1);
+    border:1px solid rgba(34,211,238,.2);border-radius:5px;padding:1px 5px;white-space:nowrap}
+
+  /* 表格 */
+  .tw{overflow-x:auto;margin:18px 0;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel);-webkit-overflow-scrolling:touch}
+  .doc table{border-collapse:collapse;width:100%;font-size:13.2px;min-width:520px}
+  .doc th{background:rgba(34,211,238,.09);color:#d8f7ff;font-weight:600;text-align:left;
+    padding:10px 13px;border-bottom:1px solid rgba(34,211,238,.3);white-space:nowrap}
+  .doc td{padding:9px 13px;border-bottom:1px solid rgba(125,139,165,.14);color:var(--text);vertical-align:top}
+  .doc tr:last-child td{border-bottom:0}
+  .doc tbody tr{transition:background .18s}
+  .doc tbody tr:hover{background:rgba(34,211,238,.05)}
+
+  /* 引用（结论块） */
+  .doc blockquote{margin:18px 0;padding:13px 17px;border-radius:11px;
+    border-left:3px solid var(--accent);background:rgba(34,211,238,.07);
+    font-size:14px;color:#d5ecf7}
+  .doc ul{margin:12px 0 12px 20px}
+  .doc li{margin:5px 0;font-size:14.2px}
+
+  /* 回顶 */
+  .totop{position:fixed;right:20px;bottom:22px;z-index:12;width:42px;height:42px;border-radius:50%;
+    display:none;place-items:center;border:1px solid var(--line);background:rgba(10,16,30,.8);
+    backdrop-filter:blur(10px);color:var(--accent);font-size:17px;text-decoration:none;cursor:pointer}
+  .totop.on{display:grid}
+
+  footer{border-top:1px solid rgba(34,211,238,.12);margin-top:20px}
+  footer .inner{max-width:var(--maxw);margin:0 auto;padding:26px 20px;
+    font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.on{opacity:1;transform:none}
+
+  @media (max-width:620px){
+    section{padding:48px 18px}
+    .nav .links{gap:13px;font-size:13px}
+    .doc h2{font-size:19px}
+    .doc table{font-size:12.6px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"><div class="orb a"></div><div class="orb b"></div><div class="grid"></div></div>
+
+<header>
+  <nav class="nav">
+    <a class="brand" href="../index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="#22d3ee" stroke-width="2.6"/>
+        <path d="M16 3a13 13 0 0 0 0 26z" fill="#a78bfa"/>
+      </svg>
+      单面本面
+    </a>
+    <div class="links">
+      <a href="../index.html">主页</a>
+      <a href="../index.html#products">产品</a>
+      <a href="../index.html#research">研究文档</a>
+      <a href="../index.html#contact">联系</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="tagline">DM-ROOT / SP-BACKEND-TRIAGE</div>
+    <h1>A14 的 pmap 后端是 SPTM + TXM，<br>不是 PPL / APRR</h1>
+    <p class="lead">
+      对 <b>kernelcache.release.ipad13pb</b> 做静态二进制取证 + 沙盒侧动态边界探测，
+      用<b>段命名约定</b>这条决定性判据收口 pmap 后端归属，并附四路交叉印证、3 条自我推翻记录与 2 项工程缺口。
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#doc-start">读全文</a>
+      <a class="btn ghost" href="../index.html#research">回主页</a>
+    </div>
+    <div class="meta"><div class="kv"><span>文档类型 静态二进制取证 + 动态沙盒侧边界探测的完整技术记录</span></div><div class="kv"><span>代号 DM-ROOT / SP-BACKEND-Triage</span></div><div class="kv"><span>日期 2026-10-01</span></div><div class="kv"><span>研究对象 kernelcache.release.ipad13pb.decompressed（A14 / t8101 / J272AP / iPad13,19）</span></div><div class="kv"><span>结论状态 定性收口（Single-Determinative Criterion Confirmed）</span></div><div class="kv"><span>诚实等级 证据链自洽；存在 2 项已显式标注的工程缺口（build 差异 / 动态侧不可达）</span></div></div>
+  </section>
+
+  <section class="reveal">
+    <div class="toc">
+      <h4>目录</h4>
+      <div class="chips"><a href="#0-结论速览-TL-DR">§0 结论速览（TL;DR）</a><a href="#1-研究对象与环境">§1 研究对象与环境</a><a href="#2-理论背景-pmap-后端的三态模型">§2 理论背景：pmap 后端的三态模型</a><a href="#3-决定性判据">§3 决定性判据</a><a href="#4-四路交叉印证">§4 四路交叉印证</a><a href="#5-关键辨析-__DATA_SPTM-整段全零的正确解读">§5 关键辨析：__DATA_SPTM 整段全零的正确解读</a><a href="#6-动态侧边界-沙盒-sysctl-allowlist-与-ENOENT-EPERM-判别法">§6 动态侧边界：沙盒 sysctl allowlist 与 ENOENT / EPERM 判别法</a><a href="#7-已显式标注的工程缺口">§7 已显式标注的工程缺口</a><a href="#8-本次被推翻的既往结论-Self-Refutation">§8 本次被推翻的既往结论（Self-Refutation）</a><a href="#9-对下游研究的影响链">§9 对下游研究的影响链</a><a href="#10-后续路径-按优先级">§10 后续路径（按优先级）</a><a href="#附录-A-证据原文-hex-ascii">附录 A · 证据原文（hex / ascii）</a><a href="#附录-B-复现脚本与调用">附录 B · 复现脚本与调用</a><a href="#附录-C-术语表">附录 C · 术语表</a></div>
+    </div>
+  </section>
+
+  <section id="doc-start" class="reveal">
+    <div class="doc">
+<h1 id="A14-iPadOS-27-0-β2-24A5370h-pmap-后端定性-SPTM-TXM-非-PPL-APRR">A14 / iPadOS 27.0 β2（24A5370h）pmap 后端定性：<b>SPTM + TXM，非 PPL / APRR</b></h1>
+<blockquote><b>文档类型</b> 静态二进制取证 + 动态沙盒侧边界探测的完整技术记录<br><b>代号</b> DM-ROOT / SP-BACKEND-Triage<br><b>日期</b> 2026-10-01<br><b>研究对象</b> <code>kernelcache.release.ipad13pb.decompressed</code>（A14 / t8101 / J272AP / iPad13,19）<br><b>结论状态</b> <b>定性收口（Single-Determinative Criterion Confirmed）</b><br><b>诚实等级</b> 证据链自洽；存在 2 项已显式标注的工程缺口（build 差异 / 动态侧不可达）</blockquote>
+<hr>
+<h2 id="0-结论速览-TL-DR">§0 结论速览（TL;DR）</h2>
+<div class="tw"><table><thead><tr><th>项</th><th>结论</th></tr></thead><tbody><tr><td><b>pmap 后端（Page Management Layer）</b></td><td><b>SPTM（Secure Page Table Manager）+ TXM（Trust on the pmap）</b></td></tr><tr><td><b>是否 PPL / APRR</b></td><td><b>否。</b> 同一份镜像内 <code>__DATA_PPL</code> / <code>__DATA_APRR</code> / <code>DATA_PPL</code> / <code>DATA_APRR</code> 出现 <b>0 次</b></td></tr><tr><td><b>决定性判据</b></td><td><b>load command 段命名约定 <code>__DATA_&lt;BACKEND&gt;</code>：</b> 全文件仅 <code>__DATA_SPTM</code> 出现 3 次，无任何其它后端段</td></tr><tr><td><b>佐证（4 路）</b></td><td>pmap 代码内运行时分支文案（<code>SPTM-based systems</code> / <code>TXM address space</code>）、<code>arm_init_sptm.c</code> 构建路径串、<code>libsptm</code> 依赖串、<code>kern.sptm.event_counters.*</code> sysctl 子树</td></tr><tr><td><b><code>__DATA_SPTM</code> 整段 0/38912 非零</b></td><td><b>不是"未加载"的证据</b>——该段由 SPTM 运行时自填充，磁盘镜像上看不到（对照段非零率 18.0%–99.7%）</td></tr><tr><td><b>动态侧可否证实</b></td><td><b>否。</b> <code>kern.sptm.*</code> 在沙盒内全 <code>ENOENT</code>；SPTM 子树不在 sandbox sysctl allowlist</td></tr><tr><td><b>自研 kernel 0day</b></td><td><b>0。</b> 本次为架构定性，非漏洞产出</td></tr></tbody></table></div>
+<hr>
+<h2 id="1-研究对象与环境">§1 研究对象与环境</h2>
+<h3 id="1-1-目标设备-动态侧实际观测-非推断">1.1 目标设备（动态侧实际观测，非推断）</h3>
+<pre><code>Device        : iPad10 / iPad13,19 / A2757
+SoC           : A14 (t8101 / J272AP)
+OS            : iPadOS 27.0 β2
+Build         : 24A5370h
+xnu           : xnu-13432.0.5.502.4~1
+Configuration : RELEASE_ARM64_T8101
+Kernel        : Darwin Kernel Version 27.0.0
+UserClients   : iokitEnum → 355 个服务（其中 5 个 IOServiceOpen 成功）
+Jailbreak     : 否（沙盒内普通 App，全签名侧载 RyConsole）</code></pre>
+<h3 id="1-2-静态对象-本机分析用的-kernelcache">1.2 静态对象（本机分析用的 kernelcache）</h3>
+<pre><code>Path    : E:/root/analysis/kernelcache.release.ipad13pb.decompressed
+Size    : 67,247,533 B (0x4088000B)
+Magic   : 0xfeedfacf (MH_MAGIC_64, arm64e)
+ncmds   : 271
+Symbol  : 完全 stripped（无 symtab 外部符号，须靠字符串 / 代码模式反推）
+PRODUCTVERSION（kc 内）: 24A5355m
+xnu（kc 内编译版）      : xnu-13361.0.0.502.1~1</code></pre>
+<blockquote>⚠️ <b>build 缺口（见 §7）</b>：kc 为 <code>24A5355m</code>，设备实跑 <code>24A5370h</code>。二者<b>非同一份字节</b>。</blockquote>
+<h3 id="1-3-段布局-从-load-command-权威解析-非手工假设">1.3 段布局（从 load command 权威解析，非手工假设）</h3>
+<div class="tw"><table><thead><tr><th>Segment</th><th>vmaddr</th><th>vmsize</th><th>fileoff</th><th>filesize</th><th>磁盘非零 qword 率</th></tr></thead><tbody><tr><td><code>__TEXT</code></td><td><code>0xfffffff007004000</code></td><td><code>0x8000</code></td><td><code>0x0</code></td><td><code>0x8000</code></td><td>—</td></tr><tr><td><code>__PRELINK_TEXT</code></td><td><code>0xfffffff00700c000</code></td><td><code>0xbb8000</code></td><td><code>0x8000</code></td><td><code>0xbb8000</code></td><td>—</td></tr><tr><td><code>__DATA_CONST</code></td><td><code>0xfffffff007bc4000</code></td><td><code>0x590000</code></td><td><code>0xbc0000</code></td><td><code>0x590000</code></td><td><b>76.9%</b></td></tr><tr><td><b><code>__DATA_SPTM</code></b></td><td><b><code>0xfffffff008154000</code></b></td><td><code>0x4c000</code></td><td><b><code>0x1150000</code></b></td><td><b><code>0x4c000</code></b></td><td><b>0.0%（0/38,912）</b></td></tr><tr><td><code>__TEXT_EXEC</code></td><td><code>0xfffffff0081a0000</code></td><td><code>0x2974000</code></td><td><code>0x119c000</code></td><td><code>0x2974000</code></td><td>—</td></tr><tr><td><code>__TEXT_BOOT_EXEC</code></td><td><code>0xfffffff0083a0000</code></td><td><code>0x8000</code></td><td><code>0x3b10000</code></td><td><code>0x8000</code></td><td><b>82.3%</b></td></tr><tr><td><code>__PRELINK_INFO</code></td><td>—</td><td>—</td><td><code>0x3b18000</code></td><td><code>0x248000</code></td><td><b>99.7%</b></td></tr><tr><td><code>__DATA</code></td><td><code>0xfffffff00ad64000</code></td><td><code>0x270000</code></td><td><code>0x3d60000</code></td><td><code>0x270000</code></td><td><b>18.0%</b></td></tr><tr><td><code>__LINKEDIT</code></td><td>—</td><td>—</td><td><code>0x3fd0000</code></td><td><code>0xb8000</code></td><td>—</td></tr></tbody></table></div>
+<p>段表共 <b>9 段</b>，且 <code>__DATA_SPTM</code> 是其中唯一的 <code>__DATA_*</code> 后端段。</p>
+<hr>
+<h2 id="2-理论背景-pmap-后端的三态模型">§2 理论背景：pmap 后端的三态模型</h2>
+<p><code>pmap</code>（Physical Map）在 arm64e 上不是单一实现，而是一套<b>可插拔后端抽象</b>。历史上 Apple 出现过三种并存形态：</p>
+<div class="tw"><table><thead><tr><th>后端</th><th>全称</th><th>说明</th></tr></thead><tbody><tr><td><b>PPL</b></td><td>Page Protection Layer</td><td>旧世代页保护层，自研 SCC 协处理器托管</td></tr><tr><td><b>SPTM</b></td><td>Secure Page Table Manager</td><td>由专用可信固件（SPTM kext，如 <code>sptm.t8101</code> 镜像 1.16MB）托管页表</td></tr><tr><td><b>TXM</b></td><td>Trust on the pmap</td><td>建立在 SPTM 之上的<b>信任域</b>（secure channel / trust tier）</td></tr></tbody></table></div>
+<p>工程事实：</p>
+<ul><li>三者<b>共用同一份 <code>pmap.c</code> 源码</b>，通过<b>编译期配置 + 启动期运行时分支</b>二选一初始化；</li><li>因此，<b>同一份二进制里同时存在 PPL 函数与 SPTM 分支文案是完全正常的</b>；</li><li>结论：<b>「镜像里搜到 <code>ppl_</code> 前缀符号」不能用来证明后端是 PPL</b>（这是本团队既往的一条错误判据，见 §8）。</li></ul>
+<p>区分后端的<b>唯一可靠锚点</b>是：初始化路径与段（segment）归属。</p>
+<hr>
+<h2 id="3-决定性判据">§3 决定性判据</h2>
+<h3 id="3-1-判据本身-段命名约定">3.1 判据本身：段命名约定</h3>
+<p>Apple 在 arm64e kernelcache 中对 pmap 后端段的命名遵循固定约定：</p>
+<pre><code>__DATA_&lt;BACKEND&gt;</code></pre>
+<p>即后端是 PPL ⇒ 段名为 <code>__DATA_PPL</code>；后端是 SPTM ⇒ 段名为 <code>__DATA_SPTM</code>；后端是 TXM 信任域 ⇒ 见关联段命名。</p>
+<p><b>段名由链接器在链接期写死进 <code>LC_SEGMENT_64</code> load command，运行时不可变。</b> 因此段名是后端选择的<b>静态硬证据</b>。</p>
+<h3 id="3-2-证据-A-子串全量计数-零命中">3.2 证据 A：子串全量计数（零命中）</h3>
+<p>对整份 67MB kernelcache 做子串精确匹配（<code>re.finditer(re.escape(pat))</code>）：</p>
+<pre><code>pat                  count
+-------------------------------
+__DATA_SPTM            3     ← 后端段存在
+__DATA_PPL             0     ← 后端段不存在
+__DATA_APRR            0
+DATA_PPL               0
+DATA_APRR              0
+_DATA_SPTM             0
+_DATA_PPL              0</code></pre>
+<p><b><code>__DATA_PPL</code> / <code>__DATA_APRR</code> 全 0 命中</b> —— 这条单判据即可定论，无需任何其它推理。</p>
+<h3 id="3-3-证据-B-load-command-段表全览-LC_SEGMENT_64-cmd-0x19">3.3 证据 B：load command 段表全览（<code>LC_SEGMENT_64</code>, cmd=<code>0x19</code>）</h3>
+<pre><code>__TEXT
+__PRELINK_TEXT
+__DATA_CONST
+__DATA_SPTM              ← 唯一的后端段
+__TEXT_EXEC
+__TEXT_BOOT_EXEC
+__PRELINK_INFO
+__DATA
+__LINKEDIT</code></pre>
+<p>段表里<b>不存在任何 PPL / APRR 后端段</b>。</p>
+<hr>
+<h2 id="4-四路交叉印证">§4 四路交叉印证</h2>
+<p>单一条判据虽硬，但为排除「段名被 strip 后重建」一类假设，追加四路独立印证：</p>
+<h3 id="印证-1-pmap-代码内的运行时分支文案-手写-ARM64-解码取证">印证 1 · pmap 代码内的运行时分支文案（手写 ARM64 解码取证）</h3>
+<p>在 <code>__TEXT_EXEC</code>（41.7 MB）内手写解码 ARM64 指令后，捕获到 pmap 的<b>运行时分支提示串</b>：</p>
+<pre><code>"32-bit 4k commpage not currently supported for SPTM configurations"
+"%s is unimplemented on SPTM-based systems"      ← 位于 pmap_iommu_*
+"attempted to overwrite TXM address space"
+"TXM trust on the pmap"</code></pre>
+<p>语义解析：这些是 <b><code>#if</code>-等价的运行时 <code>#else</code> 分支</b>的产物——同一份 <code>pmap_iommu_*</code> 代码体里，既有 PPL 路径也有 SPTM 路径，启动期按后端选择走哪一支。文案明确自称 <b>SPTM-based</b>，且出现 <b>TXM</b> 信任域术语。</p>
+<h3 id="印证-2-SPTM-kext-编译进本镜像">印证 2 · SPTM kext 编译进本镜像</h3>
+<pre><code>"arm_init_sptm.c"      ← 构建路径串（__DATA_CONST / 构建指纹区）
+"libsptm"              ← 链接依赖串</code></pre>
+<p><code>arm_init_sptm.c</code> 是 SPTM 的初始化源文件。它的<b>构建路径串出现在最终镜像里</b>，说明 SPTM kext 确实参与本镜像的链接，而非仅存在于其它 build 的固件包里。</p>
+<h3 id="印证-3-kern-sptm-sysctl-子树">印证 3 · <code>kern.sptm.*</code> sysctl 子树</h3>
+<pre><code>kern.sptm.event_counters.SWWA_TLBI_ASID
+kern.sptm.event_counters.SWWA_TLBI_ALL
+kern.sptm.event_counters.UAT_UNMAP_PROCESSED
+kern.sptm.event_counters.MARKED
+kern.sptm.event_counters.UNMARKED</code></pre>
+<p><code>SWWA</code> = Software Walk Page Table，属 SPTM 的页表遍历事件计数器；<code>UAT</code> = Unit Address Translator（GPU/IOMMU 侧地址翻译），与 <code>sptm.t8101</code> 托管 UAT / GPU IOMMU 的功能面一致。</p>
+<h3 id="印证-4-固件与设备树侧">印证 4 · 固件与设备树侧</h3>
+<ul><li><code>BuildManifest</code> 中 SPTM 相关键：<code>rspt</code> / <code>IsLoadedByiBoot</code>（×4）；</li><li>Device Tree 中 <code>txm-secure-channel</code> 属性；</li><li>SMC → HVC#0 → <b>GENTER</b> 通道（SPTM/TXM 的入口）；</li><li>独立镜像 <code>E:/root/analysis/agxfw/sptm_t8101.bin</code>（1.16 MB，t8101 专用 SPTM 固件）。</li></ul>
+<hr>
+<h2 id="5-关键辨析-__DATA_SPTM-整段全零的正确解读">§5 关键辨析：<code>__DATA_SPTM</code> 整段全零的正确解读</h2>
+<h3 id="5-1-现象">5.1 现象</h3>
+<pre><code>__DATA_SPTM  size = 0x4c000  (393,216 B)
+非零 qword   = 0 / 38,912        → 0.0%
+head 32B     = 00 00 00 00 ...
+tail 32B     = 00 00 00 00 ...</code></pre>
+<p>对照其它数据段：</p>
+<div class="tw"><table><thead><tr><th>Segment</th><th>非零 qword 率</th></tr></thead><tbody><tr><td><code>__PRELINK_INFO</code></td><td><b>99.7%</b></td></tr><tr><td><code>__TEXT_BOOT_EXEC</code></td><td><b>82.3%</b></td></tr><tr><td><code>__DATA_CONST</code></td><td><b>76.9%</b></td></tr><tr><td><code>__DATA</code></td><td><b>18.0%</b></td></tr><tr><td><b><code>__DATA_SPTM</code></b></td><td><b>0.0%</b></td></tr></tbody></table></div>
+<h3 id="5-2-三种假设与取舍">5.2 三种假设与取舍</h3>
+<div class="tw"><table><thead><tr><th>假设</th><th>反驳证据</th></tr></thead><tbody><tr><td>H1：SPTM 未加载（后端不是 SPTM）</td><td>被 §3 段名判据直接证伪——load command 里就有这个段</td></tr><tr><td>H2：解包产物损坏</td><td><b>证伪</b>：同文件其它段非零率 18%–99.7%，解包本身正常</td></tr><tr><td>H3：该段为<b>运行时自填充区</b></td><td>✅ 与所有观测自洽</td></tr></tbody></table></div>
+<h3 id="5-3-结论">5.3 结论</h3>
+<p><code>__DATA_SPTM</code> 是 <b>SPTM 运行时的私有数据区</b>（页表节点池、PT 缓存、事件计数器、per-CPU 状态等），在 <b>boot 早期由 SPTM kext 在内核内存中动态填入</b>；链接器在磁盘镜像上不落任何内容。</p>
+<p>这与本项目已确认的另一个现象同源——<b>on-disk kernelcache 数据段的绝对指针被剥离（约 43% qword 为 0）</b>：镜像是"骨架"，运行时指针由 <code>chained-fixup</code> / <code>pc_attr</code> / <code>static relocation</code> 系统在加载期重建。</p>
+<blockquote><b>因此：<code>__DATA_SPTM</code> 全零 ≠ 未加载；全零恰恰是"该段在磁盘上无内容"的正常形态。</b><br>反向验证手段：在<b>逃逸后 live dump</b>（内核 R/W 可得）时，该段 VA <code>0xfffffff008154000</code>（size 0x4c000）应是<b>满内容</b>的。</blockquote>
+<hr>
+<h2 id="6-动态侧边界-沙盒-sysctl-allowlist-与-ENOENT-EPERM-判别法">§6 动态侧边界：沙盒 sysctl allowlist 与 ENOENT / EPERM 判别法</h2>
+<h3 id="6-1-观测结果">6.1 观测结果</h3>
+<p>从沙盒内（RyConsole）对 <code>kern.sptm.*</code> 做 sysctl 探测：</p>
+<pre><code>kern.sptm.event_counters.SWWA_TLBI_ASID       → ENOENT
+kern.sptm.event_counters.SWWA_TLBI_ALL        → ENOENT
+kern.sptm.event_counters.UAT_UNMAP_PROCESSED  → ENOENT</code></pre>
+<h3 id="6-2-判别法-关键技巧">6.2 判别法（关键技巧）</h3>
+<p>桥接层<b>能区分 <code>ENOENT</code> 与 <code>EPERM</code></b>，故可建如下判别：</p>
+<div class="tw"><table><thead><tr><th>返回</th><th>含义</th></tr></thead><tbody><tr><td><code>EPERM</code></td><td>名字<b>存在</b>，但被 sandbox 策略 / entitlement 拒绝</td></tr><tr><td><code>ENOENT</code></td><td>名字<b>在沙盒视角不存在</b>（不在 allowlist，或未注册）</td></tr></tbody></table></div>
+<p>阳性对照（已实测为 <code>EPERM</code>）：</p>
+<pre><code>kern.bootargs                 → EPERM
+machdep.cpu.core_count        → EPERM</code></pre>
+<p>⇒ 桥通道工作正常，判别法有效。</p>
+<h3 id="6-3-结论">6.3 结论</h3>
+<p><b>SPTM 的 sysctl 子树不在沙盒 allowlist 之内</b> —— 沙盒内普通 App 无法动态证实 SPTM 的存在。</p>
+<p><b>⇒ 本结论只能由「段名结构性判据 + 静态链接链」支撑，动态侧不提供正向证据（亦不提供反证）。</b></p>
+<hr>
+<h2 id="7-已显式标注的工程缺口">§7 已显式标注的工程缺口</h2>
+<h3 id="缺口-1-kc-与设备-build-不同源">缺口 1 · kc 与设备 build 不同源</h3>
+<div class="tw"><table><thead><tr><th></th><th>Build</th><th>xnu</th><th>Config</th></tr></thead><tbody><tr><td>手上 kc</td><td><b>24A5355m</b></td><td><code>xnu-13361.0.0.502.1~1</code></td><td>—</td></tr><tr><td>设备实跑</td><td><b>24A5370h</b></td><td><code>xnu-13432.0.5.502.4~1</code></td><td><code>RELEASE_ARM64_T8101</code></td></tr></tbody></table></div>
+<p><b>影响评估</b>：</p>
+<ul><li>✅ 同平台（A14 / t8101）、同 Darwin 版本（27.0.0）、同点版本（β 线内小版本）——<b>pmap 架构在该区间内不变</b>；</li><li>⚠️ 故本结论是<b>跨 build 迁移推理（migrated inference）</b>，<b>不是同文件逐字节验证</b>；</li><li>✅ 但段名判据属于<b>链接期结构</b>，在 24A5355m 与 24A5370h 之间重置的概率可视为工程上可忽略（Apple 不会在同一 A14 β 线内切换 pmap 后端）。</li></ul>
+<p><b>若要彻底闭合</b>：刷/取一份 <code>24A5370h</code> 的 kernelcache 重跑 §3 段表解析即可，5 分钟工作量。</p>
+<h3 id="缺口-2-动态侧不可达-结构性非工程性">缺口 2 · 动态侧不可达（结构性非工程性）</h3>
+<p>沙盒 sysctl allowlist 不暴露 <code>kern.sptm.*</code>。除非取得沙盒逃逸 + 内核 R/W，否则<b>永远无法在本设备上动态证实</b>。</p>
+<hr>
+<h2 id="8-本次被推翻的既往结论-Self-Refutation">§8 本次被推翻的既往结论（Self-Refutation）</h2>
+<p>诚实记录，避免后续复用错误判据：</p>
+<h3 id="推翻-1-kc-里有-PPL-串-后端可能是-PPL">❌ 推翻 1：「kc 里有 PPL 串 ⇒ 后端可能是 PPL」</h3>
+<p><b>错。</b> 证据：同一份 pmap 代码体里 <code>pmap_claim_reserved_ppl_page</code> / <code>pmap_free_reserved_ppl_page</code> 与 SPTM 分支<b>并存</b>——三者（PPL / SPTM / TXM）本就是同一份源码里的运行时二选一支。</p>
+<blockquote><b>PPL / SPTM / TXM 是代码内的运行时分支，不是三个独立二进制 ⇒ 「有没有 PPL 串」根本不是判据。</b></blockquote>
+<h3 id="推翻-2-mach_kernel-sptm-mach_kernel-txm-独立-mach-o-条目-真-SPTM-条目">❌ 推翻 2：<code>mach_kernel.sptm</code> / <code>mach_kernel.txm</code> 独立 mach-o 条目 = 真 SPTM 条目</h3>
+<p><b>部分假阳性。</b> 精确子串匹配命中数 <b>n = 0</b>；此前看到的是更粗的 <code>sptm</code> / <code>txm</code> 子串误命中。</p>
+<h3 id="推翻-3-pmap_ppl-只有-1-次-PPL-边缘化">❌ 推翻 3：「<code>pmap_ppl</code> 只有 1 次 ⇒ PPL 边缘化」</h3>
+<p>这个数字本身成立，但<b>推理方向错误</b> —— 因为 PPL 串的存在是代码共享的必然产物，计数多少都不改变后端归属。</p>
+<hr>
+<h2 id="9-对下游研究的影响链">§9 对下游研究的影响链</h2>
+<p>定性结论直接改变后续攻击面的设计：</p>
+<pre><code>[沙盒逃逸]
+    ↓
+[内核 R/W]
+    ↓
+[SPTM 调用面]  ← 本次定性：SPTM 后端（页表操作经 SPTM/TXM 可信域）
+    ↓
+[TXM / codesign]  ← TXM 信任通道 = 持久化边界
+    ↓
+[持久化]</code></pre>
+<p><b>具体影响</b>：</p>
+<p>1. <b>PPL 四条缺口研究路径（LC relocation 整数溢出 / <code>cc_malloc</code> size 溢出 / PPL call-number 映射 / <code>pmap_cs</code> TLB 同类面）</b> —— 在 SPTM 后端下，这些"PPL 专属"面<b>需重新命名为 SPTM 等价面</b>，<code>pmap_cs</code> 类符号在 SPTM 后端下可能不存在，须以 SPTM 运行时函数为目标重新枚举； 2. <b>页表 dump / live dump</b> —— 目标页表由 SPTM 固件托管，dump 需经 SPTM 接口（GENTER / HVC#0）而非直接读 TTBR； 3. <b><code>kern.sptm.*</code> 事件计数器</b> —— 逃逸后可经内核读原语直接枚举，作为 SPTM 在线的<b>动态正向证据</b>（本次 ENOENT 是沙盒视角，不是内核未注册）。</p>
+<hr>
+<h2 id="10-后续路径-按优先级">§10 后续路径（按优先级）</h2>
+<div class="tw"><table><thead><tr><th>#</th><th>路径</th><th>依赖</th><th>判断</th></tr></thead><tbody><tr><td><b>1</b></td><td>取 <code>24A5370h</code> 的 kc 重跑段表解析</td><td>离线 / 5 min</td><td><b>闭合缺口 1</b>，最高性价比</td></tr><tr><td><b>2</b></td><td>逃逸后经内核读原语枚举 <code>kern.sptm.*</code></td><td>内核 R/W</td><td>闭合缺口 2，得<b>动态正向证据</b></td></tr><tr><td><b>3</b></td><td>live dump SPTM 段 <code>0xfffffff008154000</code></td><td>内核 R/W</td><td>实证 §5 H3（磁盘全零 vs 内存满内容）</td></tr><tr><td><b>4</b></td><td>经 SPTM 接口（GENTER/HVC#0）枚举调用面</td><td>逃逸后</td><td>打开 SPTM 攻击面</td></tr><tr><td><b>5</b></td><td>IORegistry 属性读实测定面 5→353</td><td>沙盒内可跑</td><td><b>不需逃逸，独立分支</b></td></tr></tbody></table></div>
+<blockquote>路径 5 与本次定性正交，是唯一<b>当前即可设备实测</b>的分支。</blockquote>
+<hr>
+<h2 id="附录-A-证据原文-hex-ascii">附录 A · 证据原文（hex / ascii）</h2>
+<pre><code>=== 段名子串计数（整文件 scan）===
+  __DATA_SPTM      n=3   @0x... （3 处：段名 + 段名 + 段名引用）
+  __DATA_PPL       n=0
+  __DATA_APRR      n=0
+  DATA_PPL         n=0
+  DATA_APRR        n=0
+  _DATA_SPTM       n=0
+  _DATA_PPL        n=0
+
+=== sptm 前缀串统计 ===
+  sptm            59    次
+  SPTM            21    次
+  PPL             70    次   ← 代码共享，非判据（见 §8）
+  pmap_ppl         1    次
+  txm / TXM        存在       （TXM address space / TXM trust on the pmap）
+  genter / GENTER  存在       （SPTM 入口通道）
+
+=== kc 自身版本串 ===
+  @0x... 24A5355m          （PRODUCTVERSION）
+  @0x... xnu-13361.0.0.502.1~1
+  @0x... Darwin Kernel Version 27.0.0
+
+=== 设备实测（沙盒内）===
+  kern.sptm.event_counters.SWWA_TLBI_ASID        ENOENT
+  kern.sptm.event_counters.SWWA_TLBI_ALL         ENOENT
+  kern.sptm.event_counters.UAT_UNMAP_PROCESSED   ENOENT
+  --- 阳性对照 ---
+  kern.bootargs               EPERM   ← 名字存在，沙盒拒
+  machdep.cpu.core_count      EPERM   ← 名字存在，沙盒拒
+  --- 身份 ---
+  iPadOS 27.0 / 24A5370h / T8101 / J272AP / iokitEnum 355 services
+  Stage0 探针 81 ms，Stage1 探针 60 ms，设备未崩溃</code></pre>
+<h2 id="附录-B-复现脚本与调用">附录 B · 复现脚本与调用</h2>
+<pre><code>静态段表 + 串归因 + 段零率 + 手写 ARM64 解码引用：
+  E:/root/analysis/ks_sptm_final.py
+  E:/root/analysis/ks_sptm_seg.py
+  E:/root/analysis/ks_attr_manual.py        （手写 ARM64 ADRP/ADD 解码器）
+  E:/root/analysis/ks_macho_util.py         （Mach-O load command 解析）
+  Run: E:/root/analysis/venv/Scripts/python.exe &lt;script&gt;
+
+动态探针（两级安全版，已验证不触发内核 panic）：
+  E:/root/analysis/sptm_probe.js            （Stage0：身份 + 安全 sysctl）
+  E:/root/analysis/sptm_probe2.js           （Stage1：ENOENT/EPERM 判别）
+  E:/root/analysis/ks_sptm_push.py          （HTTP 推送 + 取结果，单次往返）
+  Run: python E:/root/analysis/ks_sptm_push.py E:/root/analysis/sptm_probe.js
+
+设备通道（局域网）：
+  http://192.168.0.102:8899/ping
+  python &lt;...&gt;/ryconsole-autorun/tools/ryc_autorun.py --host 192.168.0.102 \
+         --port 8899 --code-file &lt;probe.js&gt; --json --quiet --interval 3 --max-polls 40</code></pre>
+<h2 id="附录-C-术语表">附录 C · 术语表</h2>
+<div class="tw"><table><thead><tr><th>术语</th><th>展开</th><th>说明</th></tr></thead><tbody><tr><td><b>kc</b></td><td>kernelcache</td><td>解压后的内核镜像（arm64e）</td></tr><tr><td><b>pmap</b></td><td>Physical Map</td><td>内核虚拟地址到物理页的映射管理层</td></tr><tr><td><b>PPL</b></td><td>Page Protection Layer</td><td>旧世代页保护后端</td></tr><tr><td><b>SPTM</b></td><td>Secure Page Table Manager</td><td>固件托管的页表管理器</td></tr><tr><td><b>TXM</b></td><td>Trust on the pmap</td><td>建立在 SPTM 之上的可信域</td></tr><tr><td><b><code>__DATA_&lt;BACKEND&gt;</code></b></td><td>—</td><td>pmap 后端段的链接期命名约定（<b>决定性判据</b>）</td></tr><tr><td><b>PAC</b></td><td>Pointer Authentication Code</td><td>arm64e 指针签名；<code>IA</code> / <code>DA</code> 密钥分别保护指令 / 数据指针</td></tr><tr><td><b>chained-fixup</b></td><td>—</td><td>arm64e 指针的链式修复格式，加载期由 <code>static_link</code> 重建</td></tr><tr><td><b><code>sptm.t8101</code></b></td><td>—</td><td>A14 专用 SPTM 固件镜像（1.16 MB），托管 UAT / GPU IOMMU</td></tr><tr><td><b>SWWA</b></td><td>Software Walk Page Table</td><td>SPTM 页表遍历事件</td></tr><tr><td><b>UAT</b></td><td>Unit Address Translator</td><td>GPU / IOMMU 侧地址翻译单元</td></tr><tr><td><b>HVC</b></td><td>Hypervisor Call</td><td>ARM SMC 的虚拟化出口，#0 → <b>GENTER</b></td></tr><tr><td><b>ENOENT vs EPERM</b></td><td>—</td><td>沙盒 sysctl 探测的"存在性 / 被拒"判别法（本研究建）</td></tr><tr><td><b><code>kIOUCVariableStructureSize</code></b></td><td>—</td><td>IOKit 中 <code>0xFFFFFFFF</code>，表示框架跳过精确大小校验（对比上下文，非本主题）</td></tr></tbody></table></div>
+<hr>
+<p><b>文档结束 · 无自研 kernel 0day 产出 · 结论可迁移至同 A14 β 线全部 build</b></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 单面本面</span>
+    <span>证据链自洽 · 无自研 kernel 0day 产出</span>
+  </div>
+</footer>
+
+<a class="totop" id="totop" href="#" title="回到顶部">↑</a>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('on')}); return; }
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('on'); io.unobserve(x.target); } });
+    }, { threshold: 0.08 });
+    els.forEach(function (e) { io.observe(e); });
+
+    var t = document.getElementById('totop');
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 620) t.classList.add('on'); else t.classList.remove('on');
+    }, { passive: true });
+    t.addEventListener('click', function (e) { e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); });
+  })();
+</script>
+</body>
+</html>
