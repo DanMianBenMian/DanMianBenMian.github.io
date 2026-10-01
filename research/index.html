@@ -10,7 +10,8 @@
 <meta property="og:description" content="iOS 内核静态取证与动态边界探测记录。">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
-<style>
+<script>document.documentElement.className+=' js';</script>
+  <style>
   :root{
     --accent:#22d3ee;        /* 霓虹青 */
     --accent2:#a78bfa;       /* 霓虹紫 */
@@ -119,8 +120,8 @@
     font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 
   /* 入场动画 */
-  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
-  .reveal.on{opacity:1;transform:none}
+  html.js .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+  html.js .reveal.on{opacity:1;transform:none}
 
   @media (max-width:620px){
     section{padding:58px 18px}
@@ -223,16 +224,14 @@
   // 滚动入场
   (function () {
     var els = document.querySelectorAll('.reveal');
-    if (!('IntersectionObserver' in window)) {
-      els.forEach(function (e) { e.classList.add('on'); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); }
-      });
-    }, { threshold: 0.12 });
-    els.forEach(function (e) { io.observe(e); });
+  if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('on')}); return; }
+  var io = new IntersectionObserver(function (en) {
+    en.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('on'); io.unobserve(x.target); } });
+  }, { threshold: 0 });
+  els.forEach(function (e) { io.observe(e); });
+  setTimeout(function () {
+    els.forEach(function (e) { if (!e.classList.contains('on')) { e.classList.add('on'); io.unobserve(e); } });
+  }, 1500);
   })();
 </script>
 </body>
