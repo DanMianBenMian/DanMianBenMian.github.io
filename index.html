@@ -95,6 +95,9 @@
   .tag.p{color:#d5c6ff;background:rgba(167,139,250,.10);border-color:rgba(167,139,250,.3)}
   .badge{font-size:11px;padding:2px 8px;border-radius:999px;margin-left:auto;
     color:#8ef0b4;background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.35)}
+  .card.wide{grid-column:1/-1}
+  .card p code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.2px;color:#9fe9f7;
+    background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.2);border-radius:5px;padding:1px 5px}
   .card a.more{display:inline-block;margin-top:14px;font-size:13.5px;color:var(--accent);text-decoration:none}
   .card a.more:hover{text-decoration:underline}
 
@@ -146,6 +149,7 @@
     </a>
     <div class="links">
       <a href="#products">产品</a>
+      <a href="#research">研究文档</a>
       <a href="#contact">联系</a>
     </div>
   </nav>
@@ -164,6 +168,7 @@
     <div class="cta">
       <a class="btn primary" href="#products">看看我的产品</a>
       <a class="btn ghost" href="html-app-build.html">了解 Html App Build</a>
+      <a class="btn ghost" href="research/sptm-pmap-backend.html">看研究文档</a>
     </div>
   </section>
 
@@ -202,6 +207,27 @@
     </div>
   </section>
 
+  <!-- ================= 研究文档 ================= -->
+  <!-- 想加新文档，照抄一个 <article class="card wide"> 改内容即可 -->
+  <section id="research" class="reveal">
+    <h2>研究文档</h2>
+    <div class="cards">
+
+      <article class="card wide">
+        <h3>A14 的 pmap 后端是 SPTM + TXM <span class="badge">已收口</span></h3>
+        <p>对 <b>kernelcache.release.ipad13pb</b> 做静态二进制取证 + 沙盒侧动态边界探测，用<b>段命名约定 <code>__DATA_&lt;BACKEND&gt;</code></b> 这条决定性判据，把 A14 / iPadOS 27 β2 的 pmap 后端定性为 <b>SPTM + TXM（非 PPL / APRR）</b>。含四路交叉印证、3 条自我推翻记录与 2 项工程缺口。</p>
+        <div class="tags">
+          <span class="tag">内核逆向</span>
+          <span class="tag">A14</span>
+          <span class="tag p">kernelcache</span>
+          <span class="tag p">静态取证</span>
+        </div>
+        <a class="more" href="research/sptm-pmap-backend.html">阅读文档 →</a>
+      </article>
+
+    </div>
+  </section>
+
   <!-- ================= 联系 ================= -->
   <section id="contact" class="reveal">
     <h2>联系</h2>
@@ -224,6 +250,7 @@
   <div class="inner">
     <span>© 2026 单面本面</span>
     <span>用 HTML 手写 · 部署在 GitHub Pages</span>
+    <span>研究仅供学习 · 不产出任何自研漏洞利用</span>
   </div>
 </footer>
 
