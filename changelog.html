@@ -19,7 +19,9 @@
    ========================================================================== */
 
 /* ---------- 1. 换色：蔚蓝科技 ---------- */
-body{--accent:#38bdf8;--accent2:#22d3ee;--accent3:#6366f1;
+body{color:var(--text);          /* 关键：本表只给具体元素上色，根上不设 color 的话
+                                  pre 之类没被覆盖的元素会继承页面自带的 #000，深底上直接隐形 */
+  --accent:#38bdf8;--accent2:#22d3ee;--accent3:#6366f1;
   --ink:#060b18;--ink-2:#0b1224;--line:#1c2b47;--line-2:#2b3f63;
   --text:#dbe7f5;--dim:#8496b4;--paper:#eaf4ff;
   --panel:rgba(12,20,38,.66);
@@ -317,32 +319,6 @@ body .reveal.on .card:nth-child(3){transition-delay:.22s}
 body .reveal.on .card:nth-child(4){transition-delay:.3s}
 body .reveal.on .card{opacity:1;transform:none}
 
-/* ---------- 16. 响应式 & 无障碍 ---------- */
-@media (max-width:640px){
-  body section{padding:68px 18px}
-  body .nav{padding:12px 18px}
-  body .nav .links{gap:16px;font-size:13px}
-  body .nav .links a:nth-child(2){display:none}
-  /* 移动端 = 纯毛玻璃：模糊调轻、去掉呼吸/掠光这些常驻动画，省电 */
-  body header{-webkit-backdrop-filter:blur(18px) saturate(180%);
-    backdrop-filter:blur(18px) saturate(180%);
-    background:linear-gradient(180deg,rgba(198,226,255,.10) 0%,rgba(10,18,38,.46) 48%,rgba(6,11,24,.66) 100%),
-               linear-gradient(180deg,rgba(12,20,40,.44),rgba(6,11,24,.6))}
-  body header::after{animation:none;opacity:.95}
-  body header::before{opacity:.5}
-  body .btn{-webkit-backdrop-filter:blur(10px) saturate(150%);
-    backdrop-filter:blur(10px) saturate(150%)}
-  body .progress{height:2px}
-  body [data-roll]{font-variant-numeric:tabular-nums}
-  body .hero{padding-top:70px;padding-bottom:60px}
-  body .card:hover{transform:none}
-}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  body .reveal,body .reveal .card{opacity:1;transform:none;filter:none}
-  body header::before,body header::after{animation:none!important;opacity:.85}
-  body .progress{transform:scaleX(1)!important}   /* 不许动的地方就整条显示，别空着 */
-}
 
 /* ---------- 16.5 液态玻璃（iOS 26/27 那种「既透得过去、又糊得开」） ---------- */
 /* 配方三分：
@@ -412,6 +388,22 @@ body .btn:hover::before{opacity:1}
 /* 卡片也给一层很薄的冷白高光（纯渐变，不额外开合成层，几乎不吃性能） */
 body .card{background:linear-gradient(180deg,rgba(255,255,255,.055) 0%,
   rgba(255,255,255,.012) 42%,rgba(0,0,0,.10) 100%),var(--panel)}
+/* 代码块：终端风 —— 面板底 + 左侧青色竖条 + 1.72 行距（之前 line-height:normal 挤成一条）
+   长行走容器内横向滚动，表格对齐才不散；移动端改成按空格折行 */
+body pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.8px;line-height:1.72;
+  color:#b6ecff;background:rgba(var(--glow),.07);border:1px solid rgba(var(--glow),.22);
+  border-left:2px solid var(--accent);border-radius:4px;padding:12px 14px;margin:12px 0;
+  overflow-x:auto;white-space:pre;tab-size:4;text-shadow:none}
+body pre::-webkit-scrollbar{height:8px}
+body pre::-webkit-scrollbar-thumb{background:#2b3f63;border-radius:4px}
+body pre + pre{margin-top:10px}
+/* 裸链接（页面里没单独定色的 <a>，比如「返回主页」）：浏览器默认蓝在深底上几乎看不见 */
+body a{color:var(--accent);text-decoration:none;transition:color .25s,text-shadow .25s}
+body a:hover{color:var(--accent2);text-shadow:0 0 12px rgba(var(--glow),.55)}
+body samp,body kbd,body tt{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.4px;
+  color:#a5e8ff;background:rgba(var(--glow),.12);border:1px solid rgba(var(--glow),.26);
+  border-radius:3px;padding:1px 6px}
+
 /* 数字滚动时定宽，免得字宽抖 */
 body [data-roll]{font-variant-numeric:tabular-nums}
 
@@ -456,6 +448,36 @@ body .totop{background:var(--panel);border:1px solid var(--line-2);color:var(--a
   backdrop-filter:blur(10px);transition:transform .25s,box-shadow .25s,border-color .25s}
 body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--glow),.32);
   border-color:rgba(var(--glow),.6)}
+
+/* ---------- 16. 响应式 & 无障碍（★必须放文件最后：同特异性的桌面规则在前面，写在它后面才盖得住） ---------- */
+/* ---------- 16. 响应式 & 无障碍 ---------- */
+@media (max-width:640px){
+  body section{padding:68px 18px}
+  body .nav{padding:12px 18px}
+  body .nav .links{gap:16px;font-size:13px}
+  body .nav .links a:nth-child(2){display:none}
+  /* 移动端 = 纯毛玻璃：模糊调轻、去掉呼吸/掠光这些常驻动画，省电 */
+  body header{-webkit-backdrop-filter:blur(18px) saturate(180%);
+    backdrop-filter:blur(18px) saturate(180%);
+    background:linear-gradient(180deg,rgba(198,226,255,.10) 0%,rgba(10,18,38,.46) 48%,rgba(6,11,24,.66) 100%),
+               linear-gradient(180deg,rgba(12,20,40,.44),rgba(6,11,24,.6))}
+  body header::after{animation:none;opacity:.95}
+  body header::before{opacity:.5}
+  body .btn{-webkit-backdrop-filter:blur(10px) saturate(150%);
+    backdrop-filter:blur(10px) saturate(150%)}
+  body .progress{height:2px}
+  /* 窄屏没有横向余量，代码块改成按空格折行 */
+  body pre{white-space:pre-wrap;overflow-x:hidden;font-size:12.2px;padding:10px 11px}
+  body [data-roll]{font-variant-numeric:tabular-nums}
+  body .hero{padding-top:70px;padding-bottom:60px}
+  body .card:hover{transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  body .reveal,body .reveal .card{opacity:1;transform:none;filter:none}
+  body header::before,body header::after{animation:none!important;opacity:.85}
+  body .progress{transform:scaleX(1)!important}   /* 不许动的地方就整条显示，别空着 */
+}
 
   </style>
 </head>
