@@ -11,152 +11,9 @@
 <meta property="og:type" content="article">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
 <link rel="canonical" href="https://danmianbenmian.github.io/research/sptm-pmap-backend.html">
-<script>document.documentElement.className+=' js';</script>
-  <style>
-  :root{
-    --accent:#22d3ee;
-    --accent2:#a78bfa;
-    --text:#c9d1d9;
-    --dim:#7d8ba5;
-    --panel:rgba(20,28,46,.66);
-    --line:rgba(34,211,238,.22);
-    --maxw:940px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth;scroll-padding-top:70px}
-  body{background:#05070f;color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
-    line-height:1.75;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-  /* 背景：与主页一致的两团漂移光 + 网格 */
-  .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
-      radial-gradient(120% 90% at 50% -10%,#1a2540 0%,#0c1120 55%,#05070f 100%)}
-  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
-  .orb.a{width:420px;height:420px;background:#22d3ee;top:-120px;left:-90px;animation:float1 22s ease-in-out infinite}
-  .orb.b{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation:float2 26s ease-in-out infinite}
-  .grid{position:absolute;inset:0;
-    background-image:linear-gradient(rgba(34,211,238,.055) 1px,transparent 1px),
-                     linear-gradient(90deg,rgba(34,211,238,.055) 1px,transparent 1px);
-    background-size:44px 44px;
-    mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%);
-    -webkit-mask-image:radial-gradient(80% 60% at 50% 30%,#000 30%,transparent 100%)}
-  @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
-  @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
-
-  /* 顶栏 */
-  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    background:rgba(5,7,15,.72);border-bottom:1px solid rgba(34,211,238,.14)}
-  .nav{max-width:var(--maxw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#eafcff;letter-spacing:.5px;text-decoration:none}
-  .brand svg{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
-  .nav .links{margin-left:auto;display:flex;gap:18px;font-size:14px;flex-wrap:wrap}
-  .nav a{color:var(--dim);text-decoration:none;transition:color .2s}
-  .nav a:hover{color:var(--accent)}
-
-  section{max-width:var(--maxw);margin:0 auto;padding:64px 20px}
-
-  /* Hero */
-  .hero{padding-top:56px;padding-bottom:8px}
-  .tagline{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:14px}
-  .hero h1{font-size:clamp(28px,5.2vw,42px);line-height:1.24;font-weight:800;letter-spacing:.5px;
-    background:linear-gradient(100deg,#eafcff 0%,var(--accent) 42%,var(--accent2) 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 0 22px rgba(34,211,238,.26))}
-  .hero p.lead{margin-top:16px;font-size:15.5px;color:var(--dim);max-width:640px}
-  .hero p.lead b{color:var(--text);font-weight:600}
-  .cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap}
-  .btn{padding:10px 20px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;
-    transition:transform .18s,box-shadow .25s,background .25s}
-  .btn.primary{background:linear-gradient(90deg,#1b8fb3,#6d4fc4);color:#eafcff;border:1px solid #5fe9ff}
-  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(34,211,238,.42)}
-  .btn.ghost{color:#bdecf7;border:1px solid var(--line);background:rgba(34,211,238,.06)}
-  .btn.ghost:hover{background:rgba(34,211,238,.14);border-color:#5fe9ff;transform:translateY(-2px)}
-
-  /* 元信息条 */
-  .meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:9px}
-  .meta .kv{font-size:11.5px;padding:5px 11px;border-radius:999px;color:#9fe9f7;
-    background:rgba(34,211,238,.09);border:1px solid rgba(34,211,238,.24)}
-  .meta .kv span{white-space:pre-wrap}
-
-  /* 目录 */
-  .toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:8px}
-  .toc h4{font-size:12px;letter-spacing:2px;color:var(--dim);margin-bottom:11px;font-weight:600}
-  .toc .chips{display:flex;flex-wrap:wrap;gap:7px}
-  .toc .chips a{font-size:12.5px;padding:4px 11px;border-radius:999px;text-decoration:none;
-    color:#9fe9f7;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.22);transition:.2s}
-  .toc .chips a:hover{color:#eafcff;border-color:rgba(34,211,238,.6);background:rgba(34,211,238,.16)}
-
-  /* 正文 */
-  .doc{scroll-margin-top:74px}
-  .doc h2{font-size:21px;color:#eafcff;margin:44px 0 18px;display:flex;align-items:center;gap:11px}
-  .doc h2:first-child{margin-top:8px}
-  .doc h2::before{content:"";width:4px;height:19px;border-radius:2px;
-    background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.7)}
-  .doc h3{font-size:16.5px;color:#eafcff;margin:30px 0 12px;padding-left:12px;
-    border-left:2px solid rgba(34,211,238,.5)}
-  .doc h4{font-size:15px;color:var(--accent);margin:24px 0 10px}
-  .doc p{font-size:14.5px;margin:12px 0}
-  .doc b{color:#e6f6ff;font-weight:600}
-  .doc a{color:var(--accent);text-decoration:none;border-bottom:1px dashed rgba(34,211,238,.4)}
-  .doc a:hover{border-bottom-style:solid}
-  .doc hr{border:0;height:1px;margin:34px 0;
-    background:linear-gradient(90deg,transparent,rgba(34,211,238,.32),transparent)}
-
-  /* 代码块 */
-  .doc pre{margin:16px 0;padding:14px 16px;border-radius:12px;overflow-x:auto;
-    background:#070c16;border:1px solid rgba(34,211,238,.2);
-    box-shadow:inset 0 0 30px rgba(34,211,238,.045)}
-  .doc pre::-webkit-scrollbar{width:9px;height:9px}
-  .doc pre::-webkit-scrollbar-thumb{background:rgba(34,211,238,.28);border-radius:5px}
-  .doc pre::-webkit-scrollbar-track{background:transparent}
-  .doc code{font-family:"SFMono-Regular",Consolas,Menlo,"Cascadia Mono",monospace;
-    font-size:12.4px;line-height:1.62;color:#b9e8f5;white-space:pre}
-  .doc p code,.doc td code,.doc li code,.doc th code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;
-    font-size:12.2px;color:#9fe9f7;background:rgba(34,211,238,.1);
-    border:1px solid rgba(34,211,238,.2);border-radius:5px;padding:1px 5px;white-space:nowrap}
-
-  /* 表格 */
-  .tw{overflow-x:auto;margin:18px 0;border-radius:12px;border:1px solid var(--line);
-    background:var(--panel);-webkit-overflow-scrolling:touch}
-  .doc table{border-collapse:collapse;width:100%;font-size:13.2px;min-width:520px}
-  .doc th{background:rgba(34,211,238,.09);color:#d8f7ff;font-weight:600;text-align:left;
-    padding:10px 13px;border-bottom:1px solid rgba(34,211,238,.3);white-space:nowrap}
-  .doc td{padding:9px 13px;border-bottom:1px solid rgba(125,139,165,.14);color:var(--text);vertical-align:top}
-  .doc tr:last-child td{border-bottom:0}
-  .doc tbody tr{transition:background .18s}
-  .doc tbody tr:hover{background:rgba(34,211,238,.05)}
-
-  /* 引用（结论块） */
-  .doc blockquote{margin:18px 0;padding:13px 17px;border-radius:11px;
-    border-left:3px solid var(--accent);background:rgba(34,211,238,.07);
-    font-size:14px;color:#d5ecf7}
-  .doc ul{margin:12px 0 12px 20px}
-  .doc li{margin:5px 0;font-size:14.2px}
-
-  /* 回顶 */
-  .totop{position:fixed;right:20px;bottom:22px;z-index:12;width:42px;height:42px;border-radius:50%;
-    display:none;place-items:center;border:1px solid var(--line);background:rgba(10,16,30,.8);
-    backdrop-filter:blur(10px);color:var(--accent);font-size:17px;text-decoration:none;cursor:pointer}
-  .totop.on{display:grid}
-
-  footer{border-top:1px solid rgba(34,211,238,.12);margin-top:20px}
-  footer .inner{max-width:var(--maxw);margin:0 auto;padding:26px 20px;
-    font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-
-  html.js .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
-  html.js .reveal.on{opacity:1;transform:none}
-
-  @media (max-width:620px){
-    section{padding:48px 18px}
-    .nav .links{gap:13px;font-size:13px}
-    .doc h2{font-size:19px}
-    .doc table{font-size:12.6px}
-  }
-  @media (prefers-reduced-motion:reduce){
-    *{animation:none!important;transition:none!important}
-    .reveal{opacity:1;transform:none}
-  }
-</style>
+  
+  
   <style data-skin="design">
 /* ==========================================================================
    design-craft · 蔚蓝科技 skin（单表覆盖全站）
@@ -216,10 +73,14 @@ body .brand svg .r{stroke:var(--accent);transform-origin:50% 50%;
 body .nav .links{margin-left:auto;display:flex;gap:24px;font-size:14px}
 body .nav .links a{color:var(--dim);text-decoration:none;transition:color .25s,text-shadow .25s}
 body .nav .links a:hover{color:var(--accent);text-shadow:0 0 12px rgba(var(--glow),.55)}
-body .progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;
+/* 进度条：3px 发光的流动渐变（scaleX 由 JS 跟着滚动走） */
+body .progress{position:fixed;top:0;left:0;height:3px;width:100%;z-index:60;
   background:linear-gradient(90deg,#0ea5e9,var(--accent),var(--accent2),var(--accent3));
   background-size:220% 100%;transform:scaleX(0);transform-origin:0 50%;
-  will-change:transform;animation:flow-x 4s linear infinite}
+  will-change:transform;animation:flow-x 4s linear infinite;
+  box-shadow:0 0 12px rgba(var(--glow),.7)}
+body .progress::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.5),transparent 65%)}
 @keyframes flow-x{to{background-position:220% 0}}
 
 /* ---------- 4. 版心 / 章节编号 / 标题 ---------- */
@@ -467,23 +328,78 @@ body .reveal.on .card{opacity:1;transform:none}
   body .nav{padding:12px 18px}
   body .nav .links{gap:16px;font-size:13px}
   body .nav .links a:nth-child(2){display:none}
+  /* 移动端 = 纯毛玻璃：模糊调轻、去掉呼吸/掠光这些常驻动画，省电 */
+  body header{-webkit-backdrop-filter:blur(14px) saturate(150%);
+    backdrop-filter:blur(14px) saturate(150%);
+    background:linear-gradient(180deg,rgba(13,22,42,.74),rgba(7,12,26,.88))}
+  body header::after{animation:none;opacity:.95}
+  body header::before{opacity:.5}
+  body .btn{-webkit-backdrop-filter:blur(10px) saturate(150%);
+    backdrop-filter:blur(10px) saturate(150%)}
+  body .progress{height:2px}
+  body [data-roll]{font-variant-numeric:tabular-nums}
   body .hero{padding-top:70px;padding-bottom:60px}
   body .card:hover{transform:none}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   body .reveal,body .reveal .card{opacity:1;transform:none;filter:none}
+  body header::before,body header::after{animation:none!important;opacity:.85}
+  body .progress{transform:scaleX(1)!important}   /* 不许动的地方就整条显示，别空着 */
 }
 
+/* ---------- 16.5 液态玻璃（nav / 按钮） ---------- */
+/* 顶栏：真·折射 —— backdrop-filter 抓背后渐变 + orb 实时模糊，配内高光和底边亮线 */
+body header{position:sticky;top:0;z-index:40;isolation:isolate;
+  -webkit-backdrop-filter:blur(22px) saturate(190%) brightness(110%);
+  backdrop-filter:blur(22px) saturate(190%) brightness(110%);
+  background:linear-gradient(180deg,rgba(15,25,46,.55) 0%,rgba(8,14,30,.80) 100%);
+  border-bottom:1px solid rgba(var(--glow),.22);
+  box-shadow:0 10px 34px rgba(3,8,20,.40);
+  transition:border-color .4s,box-shadow .4s,background .4s}
+body header:hover{border-bottom-color:rgba(var(--glow),.5);
+  box-shadow:0 12px 42px rgba(3,8,20,.56),0 0 34px rgba(var(--glow),.10)}
+/* 玻璃刀口：底边一条流动亮线 */
+body header::before{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;z-index:0;
+  pointer-events:none;opacity:.65;
+  background:linear-gradient(90deg,transparent,rgba(var(--glow),.9) 28%,
+    rgba(var(--accent2),.8) 54%,transparent 88%)}
+/* 玻璃厚度：顶部内高光 + 极慢呼吸（10s 一圈，不抢戏） */
+body header::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 170% at 50% -70%,rgba(255,255,255,.17),transparent 62%),
+             linear-gradient(180deg,rgba(255,255,255,.09),transparent 46%);
+  animation:glass-breathe 10s ease-in-out infinite}
+@keyframes glass-breathe{0%,100%{opacity:.8}50%{opacity:1}}
+body .nav{position:relative;z-index:1}
+
+/* 按钮：玻璃片质感 —— 半透明底 + 内顶高光 + 一圈渐变亮边（::before 画边，::after 继续跑扫光） */
+body .btn{-webkit-backdrop-filter:blur(16px) saturate(180%);
+  backdrop-filter:blur(16px) saturate(180%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 6px 20px rgba(3,8,20,.42)}
+body .btn.primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.5),
+  inset 0 -1px 0 rgba(0,0,0,.22),0 6px 26px rgba(var(--glow),.34)}
+body .btn.primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),
+  0 12px 40px rgba(var(--glow),.52)}
+body .btn::before{content:"";position:absolute;inset:0;padding:1px;border-radius:inherit;
+  pointer-events:none;opacity:.5;transition:opacity .3s;
+  background:linear-gradient(115deg,rgba(255,255,255,.6),transparent 38%,
+    transparent 62%,rgba(var(--glow),.55));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude}
+body .btn:hover::before{opacity:1}
+/* 数字滚动时定宽，免得字宽抖 */
+body [data-roll]{font-variant-numeric:tabular-nums}
+
 /* ---------- 17. 旧页零散 class（html-app-build / research-index / sptm 补色） ---------- */
-/* 旧页把网格放在 <div class="grid"> 里（而不只是 .bg::before），同样让它漂起来 */
+/* 旧页把网格放在 div.grid 里（而不只是 .bg::before），同样让它漂起来 */
 @keyframes drift-grid-44{to{background-position:44px 44px,44px 44px}}
 body .bg .grid{animation:drift-grid-44 30s linear infinite}
 
 /* 长正文段（html-app-build 的 <p class="body">） */
 body p.body{font-size:15px;line-height:1.95;color:var(--dim);margin:14px 0}
 body p.body b{color:var(--text);font-weight:600}
-/* 序号徽标（html-app-build 步骤里的 <div class="n">01</div>） */
+/* 序号徽标（html-app-build 步骤里的 div.n 序号徽标） */
 body .n{display:inline-flex;align-items:center;justify-content:center;
   min-width:34px;font:700 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:1.4px;color:var(--accent);
   border:1px solid rgba(var(--glow),.34);border-radius:9px;padding:6px 9px;
@@ -523,6 +439,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
 <div class="bg"><div class="orb a"></div><div class="orb b"></div><div class="grid"></div></div>
 
+<div class="progress" id="progress" aria-hidden="true"></div>
 <header>
   <nav class="nav">
     <a class="brand" href="../index.html">
@@ -790,15 +707,78 @@ machdep.cpu.core_count        → EPERM</code></pre>
 
 <a class="totop" id="totop" href="#" title="回到顶部">↑</a>
 
+
+<!-- data-roll-injected -->
+
+<!-- data-roll-injected -->
 <script>
-  (function () {
-    var els = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('on')}); return; }
-  var io = new IntersectionObserver(function (en) {
-    en.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('on'); io.unobserve(x.target); } });
-  }, { threshold: 0 });
-  els.forEach(function (e) { io.observe(e); });
-  })();
+/* 顶部进度条（跟滚动走） + 数字滚动（data-roll 里的数字从 0 滚到目标值） */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 进度条 ---------- */
+  var p = document.getElementById('progress');
+  if (p) {
+    function updProg() {
+      var de = document.documentElement;
+      var h = de.scrollHeight - (window.innerHeight || 0);
+      var y = window.pageYOffset || de.scrollTop || document.body.scrollTop || 0;
+      var r = h > 4 ? Math.min(1, Math.max(0, y / h)) : (y > 0 ? 1 : 0);
+      p.style.transform = 'scaleX(' + r + ')';
+    }
+    var tick = false;
+    function onScroll() {
+      if (tick) { return; }
+      tick = true;
+      window.requestAnimationFrame(function () { updProg(); tick = false; });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    updProg();
+  }
+
+  if (reduce) { return; }
+
+  /* ---------- 数字滚动 ---------- */
+  var els = document.querySelectorAll('[data-roll]');
+  if (!els.length) { return; }
+
+  function paint(el, t) {
+    var raw = el.getAttribute('data-roll') || el.textContent;
+    el.textContent = raw.replace(/\d+/g, function (m) {
+      var end = parseInt(m, 10), pad = m.length, v = Math.round(end * t), s = String(v);
+      while (s.length < pad) { s = '0' + s; }
+      return s;
+    });
+  }
+  function roll(el) {
+    var raw = el.getAttribute('data-roll') || el.textContent;
+    if (!/\d/.test(raw)) { return; }
+    var dur = 950, t0 = 0;
+    function step(now) {
+      if (!t0) { t0 = now; }
+      var x = Math.min(1, (now - t0) / dur);
+      paint(el, 1 - Math.pow(1 - x, 3));
+      if (x < 1) { window.requestAnimationFrame(step); }
+      else { el.textContent = raw; }
+    }
+    paint(el, 0);
+    window.requestAnimationFrame(step);
+  }
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) { return; }
+        io.unobserve(e.target);
+        window.setTimeout(function () { roll(e.target); }, 80);
+      });
+    }, { threshold: 0.2 });
+    for (var i = 0; i < els.length; i++) { io.observe(els[i]); }
+  } else {
+    for (var j = 0; j < els.length; j++) { roll(els[j]); }
+  }
+})();
 </script>
 </body>
 </html>
