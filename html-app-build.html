@@ -7,108 +7,8 @@
 <meta name="description" content="Html App Build —— 把 TurboWarp / 图形化编程作品一键打包成 iOS 和 Android 原生 App 的桌面工具。">
 <meta name="theme-color" content="#060b18">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M16 3a13 13 0 0 0 0 26z' fill='%23a78bfa'/%3E%3C/svg%3E">
-<style>
-  :root{
-    --accent:#22d3ee;
-    --accent2:#a78bfa;
-    --text:#c9d1d9;
-    --dim:#7d8ba5;
-    --panel:rgba(20,28,46,.66);
-    --line:rgba(34,211,238,.22);
-    --maxw:900px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{background:#05070f;color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
-    line-height:1.8;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-  .bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:
-      radial-gradient(120% 90% at 50% -10%,#1a2540 0%,#0c1120 55%,#05070f 100%)}
-  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
-  .orb.a{width:420px;height:420px;background:#22d3ee;top:-120px;left:-90px;animation:float1 22s ease-in-out infinite}
-  .orb.b{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation:float2 26s ease-in-out infinite}
-  @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
-  @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-70px,-50px)}}
 
-  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    background:rgba(5,7,15,.72);border-bottom:1px solid rgba(34,211,238,.14)}
-  .nav{max-width:var(--maxw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#eafcff;letter-spacing:.5px;text-decoration:none}
-  .brand svg{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 6px rgba(34,211,238,.6))}
-  .nav .links{margin-left:auto;display:flex;gap:18px;font-size:14px}
-  .nav a{color:var(--dim);text-decoration:none;transition:color .2s}
-  .nav a:hover{color:var(--accent)}
-
-  section{max-width:var(--maxw);margin:0 auto;padding:60px 20px}
-  .hero{padding-top:70px;padding-bottom:30px}
-  .tagline{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:12px}
-  .hero h1{font-size:clamp(34px,8vw,56px);line-height:1.15;font-weight:800;letter-spacing:1px;
-    background:linear-gradient(100deg,#eafcff 0%,var(--accent) 45%,var(--accent2) 100%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 0 22px rgba(34,211,238,.26))}
-  .hero p.lead{margin-top:18px;font-size:16px;color:var(--dim);max-width:640px}
-  .hero p.lead b{color:var(--text);font-weight:600}
-
-  h2{font-size:20px;color:#eafcff;margin:46px 0 20px;display:flex;align-items:center;gap:11px}
-  h2::before{content:"";width:4px;height:19px;border-radius:2px;
-    background:linear-gradient(180deg,var(--accent),var(--accent2));box-shadow:0 0 10px rgba(34,211,238,.7)}
-  p.body{font-size:14.5px;color:var(--dim);max-width:680px}
-  p.body b{color:var(--text);font-weight:600}
-
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:6px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;
-    transition:transform .2s,border-color .25s,box-shadow .3s}
-  .card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.55);box-shadow:0 14px 34px rgba(3,8,20,.7)}
-  .card .n{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:1px}
-  .card h3{font-size:16px;color:#eafcff;margin:8px 0 8px}
-  .card p{font-size:13.5px;color:var(--dim)}
-
-  ol.steps{counter-reset:s;list-style:none;padding:0;margin-top:6px;max-width:680px}
-  ol.steps li{position:relative;padding:12px 0 12px 46px;border-bottom:1px dashed rgba(34,211,238,.14);font-size:14.5px;color:var(--dim)}
-  ol.steps li:last-child{border-bottom:none}
-  ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:11px;
-    width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;color:#eafcff;
-    background:linear-gradient(140deg,rgba(34,211,238,.18),rgba(167,139,250,.18));border:1px solid var(--line)}
-  ol.steps li b{color:var(--text);font-weight:600}
-
-  .note{margin-top:14px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.28);
-    border-radius:12px;padding:16px 18px;font-size:13.5px;color:#cbbdf2;max-width:680px}
-  .note b{color:#e6dcff}
-
-  /* ---------- 下载 ---------- */
-  .dl{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:16px;
-    padding:28px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;
-    background-image:linear-gradient(140deg,rgba(34,211,238,.10),transparent 60%)}
-  .dl .meta{flex:1;min-width:220px}
-  .dl .meta .name{font-size:18px;color:#eafcff;font-weight:700}
-  .dl .meta .sub{font-size:13px;color:var(--dim);margin-top:6px}
-  .btn{padding:13px 26px;border-radius:11px;text-decoration:none;font-size:15px;font-weight:700;
-    transition:transform .18s,box-shadow .25s,background .25s;display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
-  .btn.primary{background:linear-gradient(90deg,#1b8fb3,#6d4fc4);color:#eafcff;border:1px solid #5fe9ff}
-  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(34,211,238,.45)}
-  .btn.green{background:linear-gradient(90deg,#1f9d5a,#15b06a);color:#eafff3;border:1px solid #4be39a}
-  .btn.green:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(63,185,80,.4)}
-
-  footer{border-top:1px solid rgba(34,211,238,.12);margin-top:40px}
-  footer .inner{max-width:var(--maxw);margin:0 auto;padding:26px 20px;
-    font-size:12.5px;color:#5f6b80;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:center}
-  footer a{color:var(--dim);text-decoration:none}
-  footer a:hover{color:var(--accent)}
-  .wx{color:#c9d1d9}
-  .wx b{color:#eafcff;font-family:"SFMono-Regular",Consolas,Menlo,monospace;letter-spacing:1px}
-
-  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
-  .reveal.on{opacity:1;transform:none}
-  @media (max-width:620px){
-    section{padding:46px 18px}
-    .nav .links{gap:14px;font-size:13px}
-    .dl{padding:20px}
-  }
-  @media (prefers-reduced-motion:reduce){
-    *{animation:none!important;transition:none!important}
-    .reveal{opacity:1;transform:none}
-  }
-</style>
+  
   <style data-skin="design">
 /* ==========================================================================
    design-craft · 蔚蓝科技 skin（单表覆盖全站）
@@ -168,10 +68,14 @@ body .brand svg .r{stroke:var(--accent);transform-origin:50% 50%;
 body .nav .links{margin-left:auto;display:flex;gap:24px;font-size:14px}
 body .nav .links a{color:var(--dim);text-decoration:none;transition:color .25s,text-shadow .25s}
 body .nav .links a:hover{color:var(--accent);text-shadow:0 0 12px rgba(var(--glow),.55)}
-body .progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;
+/* 进度条：3px 发光的流动渐变（scaleX 由 JS 跟着滚动走） */
+body .progress{position:fixed;top:0;left:0;height:3px;width:100%;z-index:60;
   background:linear-gradient(90deg,#0ea5e9,var(--accent),var(--accent2),var(--accent3));
   background-size:220% 100%;transform:scaleX(0);transform-origin:0 50%;
-  will-change:transform;animation:flow-x 4s linear infinite}
+  will-change:transform;animation:flow-x 4s linear infinite;
+  box-shadow:0 0 12px rgba(var(--glow),.7)}
+body .progress::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.5),transparent 65%)}
 @keyframes flow-x{to{background-position:220% 0}}
 
 /* ---------- 4. 版心 / 章节编号 / 标题 ---------- */
@@ -419,23 +323,78 @@ body .reveal.on .card{opacity:1;transform:none}
   body .nav{padding:12px 18px}
   body .nav .links{gap:16px;font-size:13px}
   body .nav .links a:nth-child(2){display:none}
+  /* 移动端 = 纯毛玻璃：模糊调轻、去掉呼吸/掠光这些常驻动画，省电 */
+  body header{-webkit-backdrop-filter:blur(14px) saturate(150%);
+    backdrop-filter:blur(14px) saturate(150%);
+    background:linear-gradient(180deg,rgba(13,22,42,.74),rgba(7,12,26,.88))}
+  body header::after{animation:none;opacity:.95}
+  body header::before{opacity:.5}
+  body .btn{-webkit-backdrop-filter:blur(10px) saturate(150%);
+    backdrop-filter:blur(10px) saturate(150%)}
+  body .progress{height:2px}
+  body [data-roll]{font-variant-numeric:tabular-nums}
   body .hero{padding-top:70px;padding-bottom:60px}
   body .card:hover{transform:none}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   body .reveal,body .reveal .card{opacity:1;transform:none;filter:none}
+  body header::before,body header::after{animation:none!important;opacity:.85}
+  body .progress{transform:scaleX(1)!important}   /* 不许动的地方就整条显示，别空着 */
 }
 
+/* ---------- 16.5 液态玻璃（nav / 按钮） ---------- */
+/* 顶栏：真·折射 —— backdrop-filter 抓背后渐变 + orb 实时模糊，配内高光和底边亮线 */
+body header{position:sticky;top:0;z-index:40;isolation:isolate;
+  -webkit-backdrop-filter:blur(22px) saturate(190%) brightness(110%);
+  backdrop-filter:blur(22px) saturate(190%) brightness(110%);
+  background:linear-gradient(180deg,rgba(15,25,46,.55) 0%,rgba(8,14,30,.80) 100%);
+  border-bottom:1px solid rgba(var(--glow),.22);
+  box-shadow:0 10px 34px rgba(3,8,20,.40);
+  transition:border-color .4s,box-shadow .4s,background .4s}
+body header:hover{border-bottom-color:rgba(var(--glow),.5);
+  box-shadow:0 12px 42px rgba(3,8,20,.56),0 0 34px rgba(var(--glow),.10)}
+/* 玻璃刀口：底边一条流动亮线 */
+body header::before{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;z-index:0;
+  pointer-events:none;opacity:.65;
+  background:linear-gradient(90deg,transparent,rgba(var(--glow),.9) 28%,
+    rgba(var(--accent2),.8) 54%,transparent 88%)}
+/* 玻璃厚度：顶部内高光 + 极慢呼吸（10s 一圈，不抢戏） */
+body header::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 170% at 50% -70%,rgba(255,255,255,.17),transparent 62%),
+             linear-gradient(180deg,rgba(255,255,255,.09),transparent 46%);
+  animation:glass-breathe 10s ease-in-out infinite}
+@keyframes glass-breathe{0%,100%{opacity:.8}50%{opacity:1}}
+body .nav{position:relative;z-index:1}
+
+/* 按钮：玻璃片质感 —— 半透明底 + 内顶高光 + 一圈渐变亮边（::before 画边，::after 继续跑扫光） */
+body .btn{-webkit-backdrop-filter:blur(16px) saturate(180%);
+  backdrop-filter:blur(16px) saturate(180%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 6px 20px rgba(3,8,20,.42)}
+body .btn.primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.5),
+  inset 0 -1px 0 rgba(0,0,0,.22),0 6px 26px rgba(var(--glow),.34)}
+body .btn.primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),
+  0 12px 40px rgba(var(--glow),.52)}
+body .btn::before{content:"";position:absolute;inset:0;padding:1px;border-radius:inherit;
+  pointer-events:none;opacity:.5;transition:opacity .3s;
+  background:linear-gradient(115deg,rgba(255,255,255,.6),transparent 38%,
+    transparent 62%,rgba(var(--glow),.55));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude}
+body .btn:hover::before{opacity:1}
+/* 数字滚动时定宽，免得字宽抖 */
+body [data-roll]{font-variant-numeric:tabular-nums}
+
 /* ---------- 17. 旧页零散 class（html-app-build / research-index / sptm 补色） ---------- */
-/* 旧页把网格放在 <div class="grid"> 里（而不只是 .bg::before），同样让它漂起来 */
+/* 旧页把网格放在 div.grid 里（而不只是 .bg::before），同样让它漂起来 */
 @keyframes drift-grid-44{to{background-position:44px 44px,44px 44px}}
 body .bg .grid{animation:drift-grid-44 30s linear infinite}
 
 /* 长正文段（html-app-build 的 <p class="body">） */
 body p.body{font-size:15px;line-height:1.95;color:var(--dim);margin:14px 0}
 body p.body b{color:var(--text);font-weight:600}
-/* 序号徽标（html-app-build 步骤里的 <div class="n">01</div>） */
+/* 序号徽标（html-app-build 步骤里的 div.n 序号徽标） */
 body .n{display:inline-flex;align-items:center;justify-content:center;
   min-width:34px;font:700 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:1.4px;color:var(--accent);
   border:1px solid rgba(var(--glow),.34);border-radius:9px;padding:6px 9px;
@@ -475,6 +434,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
 <div class="bg"><div class="orb a"></div><div class="orb b"></div></div>
 
+<div class="progress" id="progress" aria-hidden="true"></div>
 <header>
   <nav class="nav">
     <a class="brand" href="index.html">
@@ -520,32 +480,32 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <h2>能做什么</h2>
     <div class="cards">
       <div class="card">
-        <div class="n">01</div>
+        <div class="n" data-roll="01">01</div>
         <h3>双平台打包</h3>
         <p>同一份 .html，既能出 iOS 的 .ipa，也能出 Android 的 .apk。</p>
       </div>
       <div class="card">
-        <div class="n">02</div>
+        <div class="n" data-roll="02">02</div>
         <h3>自定义信息</h3>
         <p>App 名字、图标、包名（Bundle ID）都能自己填，装进手机显示的是你起的名。</p>
       </div>
       <div class="card">
-        <div class="n">03</div>
+        <div class="n" data-roll="03">03</div>
         <h3>权限清单</h3>
         <p>按平台勾选可申请的权限（相机、相册、定位……），自动写进对应配置。</p>
       </div>
       <div class="card">
-        <div class="n">04</div>
+        <div class="n" data-roll="04">04</div>
         <h3>旋转方向</h3>
         <p>竖屏 / 横屏 / 自适应 三档可选，适配不同玩法的作品。</p>
       </div>
       <div class="card">
-        <div class="n">05</div>
+        <div class="n" data-roll="05">05</div>
         <h3>云端构建</h3>
         <p>编译、签名都在云端完成，本机只负责上传配置、下载成品。</p>
       </div>
       <div class="card">
-        <div class="n">06</div>
+        <div class="n" data-roll="06">06</div>
         <h3>零环境门槛</h3>
         <p>不用自己装 Xcode / Gradle，开箱即用，适合非专业开发者。</p>
       </div>
@@ -626,20 +586,78 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   </div>
 </footer>
 
+
+<!-- data-roll-injected -->
+
+<!-- data-roll-injected -->
 <script>
-  (function () {
-    var els = document.querySelectorAll('.reveal');
-    if (!('IntersectionObserver' in window)) {
-      els.forEach(function (e) { e.classList.add('on'); });
-      return;
+/* 顶部进度条（跟滚动走） + 数字滚动（data-roll 里的数字从 0 滚到目标值） */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 进度条 ---------- */
+  var p = document.getElementById('progress');
+  if (p) {
+    function updProg() {
+      var de = document.documentElement;
+      var h = de.scrollHeight - (window.innerHeight || 0);
+      var y = window.pageYOffset || de.scrollTop || document.body.scrollTop || 0;
+      var r = h > 4 ? Math.min(1, Math.max(0, y / h)) : (y > 0 ? 1 : 0);
+      p.style.transform = 'scaleX(' + r + ')';
     }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting) { en.target.classList.add('on'); io.unobserve(en.target); }
+    var tick = false;
+    function onScroll() {
+      if (tick) { return; }
+      tick = true;
+      window.requestAnimationFrame(function () { updProg(); tick = false; });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    updProg();
+  }
+
+  if (reduce) { return; }
+
+  /* ---------- 数字滚动 ---------- */
+  var els = document.querySelectorAll('[data-roll]');
+  if (!els.length) { return; }
+
+  function paint(el, t) {
+    var raw = el.getAttribute('data-roll') || el.textContent;
+    el.textContent = raw.replace(/\d+/g, function (m) {
+      var end = parseInt(m, 10), pad = m.length, v = Math.round(end * t), s = String(v);
+      while (s.length < pad) { s = '0' + s; }
+      return s;
+    });
+  }
+  function roll(el) {
+    var raw = el.getAttribute('data-roll') || el.textContent;
+    if (!/\d/.test(raw)) { return; }
+    var dur = 950, t0 = 0;
+    function step(now) {
+      if (!t0) { t0 = now; }
+      var x = Math.min(1, (now - t0) / dur);
+      paint(el, 1 - Math.pow(1 - x, 3));
+      if (x < 1) { window.requestAnimationFrame(step); }
+      else { el.textContent = raw; }
+    }
+    paint(el, 0);
+    window.requestAnimationFrame(step);
+  }
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) { return; }
+        io.unobserve(e.target);
+        window.setTimeout(function () { roll(e.target); }, 80);
       });
-    }, { threshold: 0.12 });
-    els.forEach(function (e) { io.observe(e); });
-  })();
+    }, { threshold: 0.2 });
+    for (var i = 0; i < els.length; i++) { io.observe(els[i]); }
+  } else {
+    for (var j = 0; j < els.length; j++) { roll(els[j]); }
+  }
+})();
 </script>
 </body>
 </html>
