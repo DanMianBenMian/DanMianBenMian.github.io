@@ -9,6 +9,7 @@
 <meta property="og:title" content="RyConsole Autorun">
 <meta property="og:description" content="PC 端驱动 · iPad 执行 · 单文件 exe · 纯标准库。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12.4' fill='none' stroke='%2338bdf8' stroke-width='2.6'/%3E%3Cpath d='M16 3.6a12.4 12.4 0 0 0 0 24.8z' fill='%238d919c'/%3E%3C/svg%3E">
+  
   <style data-skin="design">
 /* ==========================================================================
    design-craft · 蔚蓝科技 skin（单表覆盖全站）
@@ -68,10 +69,14 @@ body .brand svg .r{stroke:var(--accent);transform-origin:50% 50%;
 body .nav .links{margin-left:auto;display:flex;gap:24px;font-size:14px}
 body .nav .links a{color:var(--dim);text-decoration:none;transition:color .25s,text-shadow .25s}
 body .nav .links a:hover{color:var(--accent);text-shadow:0 0 12px rgba(var(--glow),.55)}
-body .progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;
+/* 进度条：3px 发光的流动渐变（scaleX 由 JS 跟着滚动走） */
+body .progress{position:fixed;top:0;left:0;height:3px;width:100%;z-index:60;
   background:linear-gradient(90deg,#0ea5e9,var(--accent),var(--accent2),var(--accent3));
   background-size:220% 100%;transform:scaleX(0);transform-origin:0 50%;
-  will-change:transform;animation:flow-x 4s linear infinite}
+  will-change:transform;animation:flow-x 4s linear infinite;
+  box-shadow:0 0 12px rgba(var(--glow),.7)}
+body .progress::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.5),transparent 65%)}
 @keyframes flow-x{to{background-position:220% 0}}
 
 /* ---------- 4. 版心 / 章节编号 / 标题 ---------- */
@@ -319,23 +324,78 @@ body .reveal.on .card{opacity:1;transform:none}
   body .nav{padding:12px 18px}
   body .nav .links{gap:16px;font-size:13px}
   body .nav .links a:nth-child(2){display:none}
+  /* 移动端 = 纯毛玻璃：模糊调轻、去掉呼吸/掠光这些常驻动画，省电 */
+  body header{-webkit-backdrop-filter:blur(14px) saturate(150%);
+    backdrop-filter:blur(14px) saturate(150%);
+    background:linear-gradient(180deg,rgba(13,22,42,.74),rgba(7,12,26,.88))}
+  body header::after{animation:none;opacity:.95}
+  body header::before{opacity:.5}
+  body .btn{-webkit-backdrop-filter:blur(10px) saturate(150%);
+    backdrop-filter:blur(10px) saturate(150%)}
+  body .progress{height:2px}
+  body [data-roll]{font-variant-numeric:tabular-nums}
   body .hero{padding-top:70px;padding-bottom:60px}
   body .card:hover{transform:none}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   body .reveal,body .reveal .card{opacity:1;transform:none;filter:none}
+  body header::before,body header::after{animation:none!important;opacity:.85}
+  body .progress{transform:scaleX(1)!important}   /* 不许动的地方就整条显示，别空着 */
 }
 
+/* ---------- 16.5 液态玻璃（nav / 按钮） ---------- */
+/* 顶栏：真·折射 —— backdrop-filter 抓背后渐变 + orb 实时模糊，配内高光和底边亮线 */
+body header{position:sticky;top:0;z-index:40;isolation:isolate;
+  -webkit-backdrop-filter:blur(22px) saturate(190%) brightness(110%);
+  backdrop-filter:blur(22px) saturate(190%) brightness(110%);
+  background:linear-gradient(180deg,rgba(15,25,46,.55) 0%,rgba(8,14,30,.80) 100%);
+  border-bottom:1px solid rgba(var(--glow),.22);
+  box-shadow:0 10px 34px rgba(3,8,20,.40);
+  transition:border-color .4s,box-shadow .4s,background .4s}
+body header:hover{border-bottom-color:rgba(var(--glow),.5);
+  box-shadow:0 12px 42px rgba(3,8,20,.56),0 0 34px rgba(var(--glow),.10)}
+/* 玻璃刀口：底边一条流动亮线 */
+body header::before{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;z-index:0;
+  pointer-events:none;opacity:.65;
+  background:linear-gradient(90deg,transparent,rgba(var(--glow),.9) 28%,
+    rgba(var(--accent2),.8) 54%,transparent 88%)}
+/* 玻璃厚度：顶部内高光 + 极慢呼吸（10s 一圈，不抢戏） */
+body header::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 170% at 50% -70%,rgba(255,255,255,.17),transparent 62%),
+             linear-gradient(180deg,rgba(255,255,255,.09),transparent 46%);
+  animation:glass-breathe 10s ease-in-out infinite}
+@keyframes glass-breathe{0%,100%{opacity:.8}50%{opacity:1}}
+body .nav{position:relative;z-index:1}
+
+/* 按钮：玻璃片质感 —— 半透明底 + 内顶高光 + 一圈渐变亮边（::before 画边，::after 继续跑扫光） */
+body .btn{-webkit-backdrop-filter:blur(16px) saturate(180%);
+  backdrop-filter:blur(16px) saturate(180%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 6px 20px rgba(3,8,20,.42)}
+body .btn.primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.5),
+  inset 0 -1px 0 rgba(0,0,0,.22),0 6px 26px rgba(var(--glow),.34)}
+body .btn.primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.65),
+  0 12px 40px rgba(var(--glow),.52)}
+body .btn::before{content:"";position:absolute;inset:0;padding:1px;border-radius:inherit;
+  pointer-events:none;opacity:.5;transition:opacity .3s;
+  background:linear-gradient(115deg,rgba(255,255,255,.6),transparent 38%,
+    transparent 62%,rgba(var(--glow),.55));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude}
+body .btn:hover::before{opacity:1}
+/* 数字滚动时定宽，免得字宽抖 */
+body [data-roll]{font-variant-numeric:tabular-nums}
+
 /* ---------- 17. 旧页零散 class（html-app-build / research-index / sptm 补色） ---------- */
-/* 旧页把网格放在 <div class="grid"> 里（而不只是 .bg::before），同样让它漂起来 */
+/* 旧页把网格放在 div.grid 里（而不只是 .bg::before），同样让它漂起来 */
 @keyframes drift-grid-44{to{background-position:44px 44px,44px 44px}}
 body .bg .grid{animation:drift-grid-44 30s linear infinite}
 
 /* 长正文段（html-app-build 的 <p class="body">） */
 body p.body{font-size:15px;line-height:1.95;color:var(--dim);margin:14px 0}
 body p.body b{color:var(--text);font-weight:600}
-/* 序号徽标（html-app-build 步骤里的 <div class="n">01</div>） */
+/* 序号徽标（html-app-build 步骤里的 div.n 序号徽标） */
 body .n{display:inline-flex;align-items:center;justify-content:center;
   min-width:34px;font:700 12px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:1.4px;color:var(--accent);
   border:1px solid rgba(var(--glow),.34);border-radius:9px;padding:6px 9px;
@@ -397,7 +457,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
   <!-- ===== Hero ===== -->
   <section class="hero">
-    <div class="sec-no">TOOL / 01 &nbsp;&middot;&nbsp; PC 驱动 &middot; iPad 执行</div>
+    <div class="sec-no" data-roll="TOOL / 01 &nbsp;&middot;&nbsp; PC 驱动 &middot; iPad 执行">TOOL / 01 &nbsp;&middot;&nbsp; PC 驱动 &middot; iPad 执行</div>
     <h1>RyConsole<br>Autorun</h1>
     <div class="rule"></div>
     <p class="lead">
@@ -415,49 +475,49 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
   <!-- ===== 这是什么 ===== -->
   <section id="about" class="reveal">
-    <div class="sec-no">01</div>
+    <div class="sec-no" data-roll="01">01</div>
     <h2>这是什么</h2>
     <p class="lede">电脑当「发射手」，iPad 当「执行手」，中间只跑一条最简的 HTTP。</p>
   </section>
 
   <!-- ===== 能做什么 ===== -->
   <section id="features" class="reveal">
-    <div class="sec-no">02</div>
+    <div class="sec-no" data-roll="02">02</div>
     <h2>能做什么</h2>
     <div class="cards">
 
       <article class="card">
-        <div class="no">F / 01</div>
+        <div class="no" data-roll="F / 01">F / 01</div>
         <h3>局域网直连</h3>
         <p><b>ping / run / eval / submit / result</b> 五个子命令，覆盖连通测试到结果轮询的完整流程。</p>
       </article>
 
       <article class="card">
-        <div class="no">F / 02</div>
+        <div class="no" data-roll="F / 02">F / 02</div>
         <h3>单文件 exe</h3>
         <p>打包成约 <b>8.1 MB</b> 的独立 exe，<b>不需要任何 Python 环境</b>，双击即用、可随 U 盘带走。</p>
       </article>
 
       <article class="card">
-        <div class="no">F / 03</div>
+        <div class="no" data-roll="F / 03">F / 03</div>
         <h3>极简协议</h3>
         <p>走极简 HTTP，<b>纯标准库实现</b>，无第三方依赖，源码一眼能审完。</p>
       </article>
 
       <article class="card">
-        <div class="no">F / 04</div>
+        <div class="no" data-roll="F / 04">F / 04</div>
         <h3>AI 可驱动</h3>
         <p>配套 ryconsole-autorun Skill，AI 加载后会先问清 exe 位置，再自动连设备、发探针、解析回传。</p>
       </article>
 
       <article class="card">
-        <div class="no">F / 05</div>
+        <div class="no" data-roll="F / 05">F / 05</div>
         <h3>安全边界</h3>
         <p>只在<b>自己拥有 / 授权</b>的设备上使用，探针运行于 App 沙盒内，并附 Responsible Disclosure 声明。</p>
       </article>
 
       <article class="card">
-        <div class="no">F / 06</div>
+        <div class="no" data-roll="F / 06">F / 06</div>
         <h3>开源可审</h3>
         <p>客户端源码完全公开，iPad 端原生桥原语（<code>jb*</code> / <code>iokit*</code>）清单透明，研究者可自行核验。</p>
       </article>
@@ -467,7 +527,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
   <!-- ===== 怎么用 ===== -->
   <section id="howto" class="reveal">
-    <div class="sec-no">03</div>
+    <div class="sec-no" data-roll="03">03</div>
     <h2>怎么用</h2>
     <p class="lede">四步：装 App → 开监听 → 测连通 → 发探针。</p>
     <ol class="steps">
@@ -485,7 +545,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
   <!-- ===== 边界 ===== -->
   <section id="boundary" class="reveal">
-    <div class="sec-no">04</div>
+    <div class="sec-no" data-roll="04">04</div>
     <h2>边界（说实话）</h2>
     <div class="note">
       <span class="h">它适合 / 不适合什么</span>
@@ -496,20 +556,20 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
   <!-- ===== Skill ===== -->
   <section id="skill" class="reveal">
-    <div class="sec-no">05</div>
+    <div class="sec-no" data-roll="05">05</div>
     <h2>配套 Skill</h2>
     <p class="lede">把两条核心能力沉淀成可复用手册，AI 加载后会自动按手册驱动设备。</p>
     <div class="cards">
 
       <article class="card">
-        <div class="no">SK / 01</div>
+        <div class="no" data-roll="SK / 01">SK / 01</div>
         <h3>Agent 指南（RyConsole Autorun）</h3>
         <p>AI 在电脑端把 JS 探针发到 iPad 执行并取回结果。含协议契约、81 个桥原语清单、错误自解释约定、轮询纪律、保活与灵动岛坑点 —— 让 AI 真正学会用你的 iPad 当「执行手」。</p>
         <a class="btn violet btn-sm" style="margin-top:16px" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/ryconsole-autorun-skill.zip" download="ryconsole-autorun-skill.zip">下载 Agent 指南 Skill →</a>
       </article>
 
       <article class="card">
-        <div class="no">SK / 02</div>
+        <div class="no" data-roll="SK / 02">SK / 02</div>
         <h3>Cloudflare 穿透（Quick Tunnel）</h3>
         <p>国内移动宽带下 <b>零注册、零实名、零银行卡</b> 的公网穿透方案。cloudflared quick tunnel 一键拉起，外网设备访问家里 PC。含安装、URL 解析、替代方案判死记录与排查顺序。</p>
         <a class="btn violet btn-sm" style="margin-top:16px" href="https://github.com/DanMianBenMian/RyConsole-Autorun/releases/download/RyConsole-iPad-v1/cloudflare-quick-tunnel-skill.zip" download="cloudflare-quick-tunnel-skill.zip">下载 Cloudflare 穿透 Skill →</a>
@@ -520,12 +580,12 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 
   <!-- ===== 下载 ===== -->
   <section id="download" class="reveal">
-    <div class="sec-no">06</div>
+    <div class="sec-no" data-roll="06">06</div>
     <h2>下载</h2>
 
     <div class="cards" style="margin-bottom:0">
       <div class="card dl-card">
-        <div class="no">DL / 01</div>
+        <div class="no" data-roll="DL / 01">DL / 01</div>
         <h3 style="font-size:18px">RyConsole Autorun（Windows）</h3>
         <p style="margin-bottom:14px">单文件 exe · 约 8.1 MB · 支持 Windows 10/11 · 内置全部依赖，双击即用</p>
         <div class="btns">
@@ -535,7 +595,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
       </div>
 
       <div class="card dl-card">
-        <div class="no">DL / 02</div>
+        <div class="no" data-roll="DL / 02">DL / 02</div>
         <h3 style="font-size:18px">RyConsole（iPhone / iPad 通用）</h3>
         <p style="margin-bottom:14px">当前版本 V2.4.26 · 点下方「查看更新日志」看历代改动 →</p>
         <div class="btns">
@@ -565,98 +625,135 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
         <div class="cl"><div class="top"><span class="v latest">V2.4.26</span><span class="date">2026-09-29</span><span class="tag">最新</span></div>
           <ul><li>★ <b>远程连接模式补上本机日志 + 侧栏状态</b>：之前远程模式下 PC 推来的探针 / <code>print</code> 输出 / <code>result</code> 回传只发回 PC，本机面板看不到；现 iPad 端加环形日志缓冲，三处埋点（收到 <code>push_js</code> 代码、<code>print</code> 输出、<code>result</code> 回传）实时显示在「连接日志 / 执行输出」面板，与监听模式一致。</li>
           <li>★ <b>侧栏左下角状态镜像监听</b>：远程连接中显示「● 远程连接中」（琥珀）/ 已连接显示「● 远程已连接」（绿）/ 未开显示「● 未启动」（灰），不再连上了仍灰着。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.25</span><span class="date">2026-09-29</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.25">V2.4.25</span><span class="date">2026-09-29</span></div>
           <ul><li>★ <b>修复远程连接模式顶层 <code>return</code> 非法</b>：之前远程执行路径直接 <code>evaluateScript</code> 全局 eval，顶层 <code>return</code> 触发 SyntaxError 整段失败；现与局域网 / Autorun 模式一致走 <code>RYC_RUN</code>（engine.js 包裹），支持 <code>return</code> 回传结果。</li>
           <li>零副作用：保留全局 <code>var</code> 跨 <code>push_js</code> 共享，仅补上 <code>return</code> 支持；与 V2.4.24 的远程连接 / 保活 / 灵动岛能力完全兼容。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.24</span><span class="date">2026-09-28</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.24">V2.4.24</span><span class="date">2026-09-28</span></div>
           <ul><li>★ <b>远程连接（RyConsoleServer + Cloudflare quick tunnel 穿透）</b>：iPad 经公网隧道连家里 PC，PC 推 JS 在 iPad 的专用 <code>ryc-remote</code> 上下文执行并回传，实验室外（学校 4G / 蜂窝）也能跑。</li>
           <li>★ <b>远程保活 + 灵动岛「远程连接中」</b>：完全镜像监听架构 —— 点「连接」即拉起静音音频后台保活 + 独立实时活动（☁️ 蓝色云图标），划出 App 不再 60s 掉线；WS 不可达时自动降级 HTTP 长轮询。</li>
           <li>监听 / 远程互斥：同时只能开一个，开启另一个会先提示并踢掉当前。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.23</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.23">V2.4.23</span><span class="date">2026-09-25</span></div>
           <ul><li>★ <b>回退 callPtr 到固定元数</b>：2.4.22 让 callPtr 走变参通道，导致固定元数 libc（memset / kill / mmap 等）的 x1–x7 实参被破坏、多参调用结果错误（回归）。现 callPtr 回到固定元数寄存器传参，多参 / syscall 恢复正常；真变参（printf 等）仍走 <code>callVariadic</code>，受控 syscall 走 <code>syscallN</code>。</li>
           <li>errno 两条路径失败都附（坏 pid 可验 errno=3 ESRCH）；原生原语合计 <b>81</b>。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.22</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.22">V2.4.22</span><span class="date">2026-09-25</span></div>
           <ul><li>⚠ <b>已知回归</b>：callPtr 误走变参通道，多参 libc 调用结果错误，已由 V2.4.23 回退修复；单参调用不受影响。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.21</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.21">V2.4.21</span><span class="date">2026-09-25</span></div>
           <ul><li>新增 <code>callVariadic()</code> / <code>syscallN()</code> 变参原语（<code>callPtr</code> 入口的变参修复在 V2.4.22 补齐）。</li>
           <li>新增 <code>callVariadic()</code>（真·ABI 上栈，errno 透传）+ <code>syscallN()</code>（号段校验 + csops 死亡名单）。</li>
           <li>原生原语 <b>79 → 81</b>。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.20</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.20">V2.4.20</span><span class="date">2026-09-25</span></div>
           <ul><li>★ <b>Tier 3 原生 Mach 竞态桥</b>：解锁被用户态体检封死的 ipc_port/vm_map 内核竞态面。</li>
           <li>新增 9 原语（portAlloc·portInsertRight·portDealloc·portDestroy·portModRefs·portType + vmAlloc·vmDealloc + iokitCallPort 跳过体检直发内核）。</li>
           <li>原语 <b>70 → 79</b>。⚠️ Mach/vm UAF 可能触发 kernel panic。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.19</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.19">V2.4.19</span><span class="date">2026-09-25</span></div>
           <ul><li>★ <b>envReset 回归修复</b>（JSC 桥转换坑）：无参 envReset() 真机竟停服务端，改 JSValue 参数 + 判空兜底。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.18</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.18">V2.4.18</span><span class="date">2026-09-25</span></div>
           <ul><li>★ 新增 <code>envCred()</code> 身份原语（uid/euid 拆开报，实时 LPE 金丝雀）+ 修复 liveHits 灵动岛焊接 Bug。</li>
           <li><code>build_ui.py</code> 推送清单修复（漏推 Swift 文件）。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.17</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.17">V2.4.17</span><span class="date">2026-09-25</span></div>
           <ul><li>「复制地址」改弹窗选择（Wi-Fi / 热点 / 蜂窝各自地址）。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.16</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.16">V2.4.16</span><span class="date">2026-09-25</span></div>
           <ul><li>★ <b>真正的优先级 Bug 修复</b>：按 pri 顺序逐个接口名查找，Autorun 面板列出全部地址。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.15</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.15">V2.4.15</span><span class="date">2026-09-25</span></div>
           <ul><li>★ <b>重置环境不再停服务端</b>（半自动工作流不被打断）。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.14</span><span class="date">2026-09-25</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.14">V2.4.14</span><span class="date">2026-09-25</span></div>
           <ul><li>★ 网络端点分类 + 优先级（Wi-Fi 优先）+ 新增 <code>envNet()</code> / <code>/ping</code> 加 <code>endpoints</code>。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.4.0 – V2.4.13</span><span class="date">2026-08 ~ 09</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.4.0 – V2.4.13">V2.4.0 – V2.4.13</span><span class="date">2026-08 ~ 09</span></div>
           <ul><li>环境 / 网络 / 保活体系建立期，逐版本细节以 V2.4.14 起的版本表为权威。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.3.0</span><span class="date">2026-08</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.3.0">V2.3.0</span><span class="date">2026-08</span></div>
           <ul><li>★ <b>callPtr（C 函数指针 FFI）</b>：补齐 dlopen/dlsym 后最后一环。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.2.7</span><span class="date">2026-08</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.2.7">V2.2.7</span><span class="date">2026-08</span></div>
           <ul><li>★ 崩溃兜底<b>生效修复</b>：sigsetjmp 双返回根因（V2.2.6 实测未生效）。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.2.6</span><span class="date">2026-08</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.2.6">V2.2.6</span><span class="date">2026-08</span></div>
           <ul><li>崩溃兜底初版：用户态信号崩溃不再重启进程（初版有缺陷）。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.2.5</span><span class="date">2026-08</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.2.5">V2.2.5</span><span class="date">2026-08</span></div>
           <ul><li>★ <b>装桥/改桥不用重编重装</b>（ryc_bridge.py）+ 33 原语类型守卫 + kr 码表修正。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.2.4</span><span class="date">2026-08</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.2.4">V2.2.4</span><span class="date">2026-08</span></div>
           <ul><li>桥失败自解释 + <code>primHelp()</code> + <code>iokitMapTry()</code>。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.2</span><span class="date">2026-07 ~ 08</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.2">V2.2</span><span class="date">2026-07 ~ 08</span></div>
           <ul><li><code>memRead</code> + 后台保活 + 灵动岛「监听中」。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2.1</span><span class="date">2026-07</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2.1">V2.1</span><span class="date">2026-07</span></div>
           <ul><li>ObjC runtime 桥（objc_getClass / sel_registerName / objc_msgSend / objcDesc）。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V2</span><span class="date">2026-09</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V2">V2</span><span class="date">2026-09</span></div>
           <ul><li>★ 新款 RyConsole 研究控制台（当前形态）重新开发；结构化 XPC + machLookUp + dyld + sandboxCheck + keychainProbe + procListPids + posixSpawn。</li></ul></div>
-        <div class="cl"><div class="top"><span class="v">V1</span><span class="date">2026-07</span></div>
+        <div class="cl"><div class="top"><span class="v" data-roll="V1">V1</span><span class="date">2026-07</span></div>
           <ul><li>RyConsole 旧款研究控制台诞生（A14 越狱 → 免费签额度瓶颈 → 自建执行环境）。</li></ul></div>
         <a class="fullpage" href="changelog.html" target="_blank" rel="noopener">在独立页面查看完整更新日志 →</a>
       </div>
     </div>
   </div>
 
+
+<!-- data-roll-injected -->
+
+<!-- data-roll-injected -->
 <script>
-(function(){
-  var els = document.querySelectorAll('.reveal');
-  if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('on')}); }
-  else{
-    var io = new IntersectionObserver(function(en){
-      en.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('on'); io.unobserve(x.target); } });
-    },{threshold:0.12, rootMargin:'0px 0px -8% 0px'});
-    els.forEach(function(e){ io.observe(e); });
+/* 顶部进度条（跟滚动走） + 数字滚动（data-roll 里的数字从 0 滚到目标值） */
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 进度条 ---------- */
+  var p = document.getElementById('progress');
+  if (p) {
+    function updProg() {
+      var de = document.documentElement;
+      var h = de.scrollHeight - (window.innerHeight || 0);
+      var y = window.pageYOffset || de.scrollTop || document.body.scrollTop || 0;
+      var r = h > 4 ? Math.min(1, Math.max(0, y / h)) : (y > 0 ? 1 : 0);
+      p.style.transform = 'scaleX(' + r + ')';
+    }
+    var tick = false;
+    function onScroll() {
+      if (tick) { return; }
+      tick = true;
+      window.requestAnimationFrame(function () { updProg(); tick = false; });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    updProg();
   }
 
-  var bar = document.getElementById('progress'), ticking = false;
-  function paint(){
-    var h = document.documentElement.scrollHeight - window.innerHeight;
-    var p = h > 0 ? window.scrollY / h : 0;
-    bar.style.transform = 'scaleX(' + Math.min(1, Math.max(0, p)) + ')';
-    ticking = false;
-  }
-  window.addEventListener('scroll', function(){
-    if(!ticking){ ticking = true; requestAnimationFrame(paint); }
-  }, {passive:true});
-  paint();
+  if (reduce) { return; }
 
-  var ov = document.getElementById('changelogModal');
-  var openBtn = document.getElementById('openChangelog');
-  var closeBtn = document.getElementById('closeChangelog');
-  function show(){ ov.classList.add('open'); document.body.style.overflow = 'hidden'; }
-  function hide(){ ov.classList.remove('open'); document.body.style.overflow = ''; }
-  if(openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); show(); });
-  if(closeBtn) closeBtn.addEventListener('click', hide);
-  if(ov) ov.addEventListener('click', function(e){ if(e.target === ov) hide(); });
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && ov && ov.classList.contains('open')) hide();
-  });
+  /* ---------- 数字滚动 ---------- */
+  var els = document.querySelectorAll('[data-roll]');
+  if (!els.length) { return; }
+
+  function paint(el, t) {
+    var raw = el.getAttribute('data-roll') || el.textContent;
+    el.textContent = raw.replace(/\d+/g, function (m) {
+      var end = parseInt(m, 10), pad = m.length, v = Math.round(end * t), s = String(v);
+      while (s.length < pad) { s = '0' + s; }
+      return s;
+    });
+  }
+  function roll(el) {
+    var raw = el.getAttribute('data-roll') || el.textContent;
+    if (!/\d/.test(raw)) { return; }
+    var dur = 950, t0 = 0;
+    function step(now) {
+      if (!t0) { t0 = now; }
+      var x = Math.min(1, (now - t0) / dur);
+      paint(el, 1 - Math.pow(1 - x, 3));
+      if (x < 1) { window.requestAnimationFrame(step); }
+      else { el.textContent = raw; }
+    }
+    paint(el, 0);
+    window.requestAnimationFrame(step);
+  }
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) { return; }
+        io.unobserve(e.target);
+        window.setTimeout(function () { roll(e.target); }, 80);
+      });
+    }, { threshold: 0.2 });
+    for (var i = 0; i < els.length; i++) { io.observe(els[i]); }
+  } else {
+    for (var j = 0; j < els.length; j++) { roll(els[j]); }
+  }
 })();
 </script>
 </body>
