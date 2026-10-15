@@ -23,6 +23,15 @@
    选择器统一加 body 前缀，保证压过页面自己的 .card 等写法
    ========================================================================== */
 
+/* ---------- 0. 兜底：去掉 UA 默认 8px 边距 + 深色画布，杜绝任何白边 ---------- */
+/* 深色背景全靠 body .bg（position:fixed; z-index:-2）这块固定层，
+   一旦 body 留着浏览器默认的 8px margin，四周就会露出白色画布形成白边；
+   再给 html/body 一层深色兜底，万一 .bg 没铺满也绝不会闪白。
+   注意：body 必须 transparent，否则会盖住身后的 .bg（orbs/网格全没了）。 */
+html,body{margin:0;padding:0}
+html{background:#060b18;-webkit-text-size-adjust:100%}
+body{background:transparent;min-height:100vh}
+
 /* ---------- 1. 换色：蔚蓝科技 ---------- */
 body{color:var(--text);          /* 关键：本表只给具体元素上色，根上不设 color 的话
                                   pre 之类没被覆盖的元素会继承页面自带的 #000，深底上直接隐形 */
