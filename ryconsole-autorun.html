@@ -520,7 +520,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     </div>
     <div class="cta">
       <a class="btn primary" href="#download">下载 Windows 工具</a>
-      <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2428/RyConsole-v2.4.28.ipa" download="RyConsole-v2.4.28.ipa">下载 iPad App（IPA）</a>
+      <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2429/RyConsole-v2.4.29.ipa" download="RyConsole-v2.4.29.ipa">下载 iPad App（IPA）</a>
     </div>
   </section>
 
@@ -648,9 +648,9 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
       <div class="card dl-card">
         <div class="no" data-roll="DL / 02">DL / 02</div>
         <h3 style="font-size:18px">RyConsole（iPhone / iPad 通用）</h3>
-        <p style="margin-bottom:14px">当前版本 V2.4.28 · 点下方「查看更新日志」看历代改动 →</p>
+        <p style="margin-bottom:14px">当前版本 V2.4.29 · 点下方「查看更新日志」看历代改动 →</p>
         <div class="btns">
-          <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2428/RyConsole-v2.4.28.ipa" download="RyConsole-v2.4.28.ipa">下载 IPA</a>
+          <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2429/RyConsole-v2.4.29.ipa" download="RyConsole-v2.4.29.ipa">下载 IPA</a>
           <a class="btn violet" id="openChangelog" href="javascript:void(0)" role="button">查看更新日志</a>
         </div>
       </div>
@@ -671,9 +671,12 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <div class="modal">
       <button class="close" id="closeChangelog" aria-label="关闭">×</button>
       <h3>RyConsole 更新日志</h3>
-      <div class="sub">从 V2 到最新版 V2.4.28 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.28</b></div>
+      <div class="sub">从 V2 到最新版 V2.4.29 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.29</b></div>
       <div class="cl-body">
-        <div class="cl"><div class="top"><span class="v latest">V2.4.28</span><span class="date">2026-10-30</span><span class="tag">最新</span></div>
+        <div class="cl"><div class="top"><span class="v latest">V2.4.29</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <ul><li>★ <b>WS1 iokit 派发通道修复</b>：iokitCall* 三处 <code>outCnt</code> 硬编码 16，内核 <code>scalarOutputCount</code> 精确相等比对失败，几乎全返回 0xe00002c2。新增 <code>iokitCallEx</code>（按签名传期望 scalarOutCount，不再盲发 16）+ <code>callPtr</code> 补 ret 十进制别名（旧版仅 value hex 串易误读）。</li>
+          <li>★ 版本 2.4.29 / build 69，未签名 IPA 需全能签侧载。</li></ul></div>
+<div class="cl"><div class="top"><span class="v" data-roll="V2.4.28">V2.4.28</span><span class="date">2026-10-30</span></div>
           <ul><li>★ <b>WS1 代码审查：修 4 个真缺陷</b>（纯质量层，不引入新攻击面、不碰内核）。V2.4.27 出包后真机从未跑过（设备桥不通），改为离线逐行审查。</li>
           <li>① <b>必崩 → 早退</b>：<code>iosurfaceRead / iosurfaceWrite</code> 没检查 <code>IOSurfaceGetBaseAddress</code> 返回 <code>NULL</code>，直接空指针读 / <code>memcpy</code>（违反红线「只访问已映射区间」）。现补 <code>if(!base)</code> 早退。</li>
           <li>② <b>语义错 → 令牌表 <code>gSurfLockTok</code></b>：3 处 <code>IOSurfaceUnlock</code> 传 <code>NULL</code> seed，而第三参必须回传 Lock 那次的 seed —— 原来解锁语义错、锁计数泄漏。现用 handle→栈 令牌表配对（Lock 压栈 / Unlock 出栈原样回传 / release 一并清理；用栈因为 Lock <b>可嵌套</b>）。</li>
