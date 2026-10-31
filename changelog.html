@@ -506,7 +506,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 86 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.28</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 86 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.29</b>。</p>
   </section>
 
   <section class="reveal">
@@ -514,7 +514,17 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <div class="timeline">
 
       <div class="cl">
-          <div class="top"><span class="v latest">V2.4.28</span><span class="date">2026-10-30</span><span class="tag">最新</span></div>
+          <div class="top"><span class="v latest">V2.4.29</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <ul>
+            <li>★ <b>WS1 iokit 派发通道修复</b>：Ry-JB 论坛帖 #15 定位 iokitCall / iokitCallStruct / iokitCallPort 三处把 <code>IOConnectCallMethod</code> 的 <code>outCnt</code> <b>硬编码 16</b>，而内核派发器对 (scalarInputCount, structureInputSize, scalarOutputCount, structureOutputSize) 是<b>逐个精确相等</b>比对（非 ≥）。表里 scalarOut 绝大多数是 0/1/2/4，固定填 16 使第一道 scalarOutputCount 检查就挂，几乎 100% 返回 kIOReturnBadArgument(0xe00002c2)。这推翻了此前「WS3 真机 sel 0..15 全 0xe00002c2 是内核门禁 / selector 不存在」的判断——真因是桥侧硬编码。</li>
+            <li>① <b>新增 iokitCallEx 原语</b>：调用方按方法签名传<b>期望 scalarOutCount</b>（内核回写实际个数到 outCount），不再盲发 16；</li>
+            <li>② <b>callPtr 补 ret 别名</b>：返回值统一补十进制 ret（旧版仅 <code>value</code> hex 串，JS 侧 <code>krWhy(res.ret)</code> 取不到数字、易误读成 KERN_SUCCESS）。</li>
+            <li>★ 版本 2.4.29 / build 69，未签名 IPA 487,372 B，需全能签侧载。</li>
+            <li>⚠ <b>待真机 A/B 验收</b>：sel 8 复测确认 WS3 历史失败真因即 outCnt；IOSurface selector 上限 60 vs 120 待核对内核符号表。</li>
+          </ul>
+        </div>
+<div class="cl">
+          <div class="top"><span class="v" data-roll="V2.4.28">V2.4.28</span><span class="date">2026-10-30</span></div>
           <ul>
             <li>★ <b>WS1 代码审查：修 4 个真缺陷</b>（纯质量层，不引入新攻击面、不碰内核）。V2.4.27 出包后真机从未跑过（设备桥不通），改为离线逐行审查，查出 4 个问题并在本版全部修掉。</li>
             <li>① <b>必崩 → 早退</b>：<code>iosurfaceRead / iosurfaceWrite</code> 没检查 <code>IOSurfaceGetBaseAddress</code> 返回 <code>NULL</code>，直接空指针读 / <code>memcpy</code>（违反红线「只访问已映射区间」）。现补 <code>if(!base)</code> 早退：读路径返回 0 字节、写路径一个字节都不写。</li>
@@ -728,7 +738,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.28</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.29</b></span>
   </div>
 </footer>
 
