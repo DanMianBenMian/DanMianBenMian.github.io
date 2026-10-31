@@ -506,7 +506,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 86 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.29</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 86 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.30</b>。</p>
   </section>
 
   <section class="reveal">
@@ -514,7 +514,16 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <div class="timeline">
 
       <div class="cl">
-          <div class="top"><span class="v latest">V2.4.29</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <div class="top"><span class="v latest">V2.4.30</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <ul>
+            <li>★ <b>WS1 iokit 桥缺陷 #2 修复</b>：Ry-JB 论坛帖 #16 定位 callPtr 固定元数函数指针 ladder 上限 <b>8 参</b>，导致 <code>IOConnectCallAsyncStructMethod</code>（9 参）等所有 <b>async 外部方法</b>（如 IOSurfaceRoot <code>sel 17</code>）永久不可达——内核侧 async 入口才填 <code>asyncReference</code>，同步入口恒 NULL ⇒ 同步怎么调都 <code>0xe00002c2</code>。与 #1（outCnt 硬编码）同类：#1 是参数值写死，#2 是参数个数写死。</li>
+            <li>① <b>callPtr 扩到 16 参</b>：固定元数函数指针 ladder 从 8 扩到 16（<code>nums</code>/<code>slots</code> 数组 <code>[8]&#8594;[16]</code>、上限 <code>n&gt;=8&#8594;n&gt;=16</code>、<code>switch</code> 补 <code>case 8..16</code>），编译器按 AAPCS 自动把第 9+ 参压栈（与 x0&#8211;x7 同机制），<b>无需手写 ARM64 汇编</b>，错误串 <code>too many args (&gt;8)&#8594;(&gt;16)</code>。</li>
+            <li>★ 版本 2.4.30 / build 70，未签名 IPA 487,643 B，需全能签侧载。</li>
+            <li>⚠ <b>待真机 A/B 验收</b>：① callPtr 9 参 <code>IOConnectCallAsyncStructMethod</code> sel 17 拿到真实 kr（0x0=注册成功、随后 sel 18 注销）；② sel 24/sel 30 OOL：<code>structInDescriptor</code>/<code>structOutDescriptor</code> 非 NULL（sel 30 权限门返 0xe00002c1 预期）；③ 回归：callPtr 8 参 <code>IOConnectCallStructMethod</code> sel 6 仍 kr=0/3176B。</li>
+          </ul>
+        </div>
+<div class="cl">
+          <div class="top"><span class="v" data-roll="V2.4.29">V2.4.29</span><span class="date">2026-11-01</span></div>
           <ul>
             <li>★ <b>WS1 iokit 派发通道修复</b>：Ry-JB 论坛帖 #15 定位 iokitCall / iokitCallStruct / iokitCallPort 三处把 <code>IOConnectCallMethod</code> 的 <code>outCnt</code> <b>硬编码 16</b>，而内核派发器对 (scalarInputCount, structureInputSize, scalarOutputCount, structureOutputSize) 是<b>逐个精确相等</b>比对（非 ≥）。表里 scalarOut 绝大多数是 0/1/2/4，固定填 16 使第一道 scalarOutputCount 检查就挂，几乎 100% 返回 kIOReturnBadArgument(0xe00002c2)。这推翻了此前「WS3 真机 sel 0..15 全 0xe00002c2 是内核门禁 / selector 不存在」的判断——真因是桥侧硬编码。</li>
             <li>① <b>新增 iokitCallEx 原语</b>：调用方按方法签名传<b>期望 scalarOutCount</b>（内核回写实际个数到 outCount），不再盲发 16；</li>
@@ -738,7 +747,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.29</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.30</b></span>
   </div>
 </footer>
 
