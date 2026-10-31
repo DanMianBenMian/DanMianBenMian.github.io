@@ -506,7 +506,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 81 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.26</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 86 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.28</b>。</p>
   </section>
 
   <section class="reveal">
@@ -514,7 +514,29 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <div class="timeline">
 
       <div class="cl">
-        <div class="top"><span class="v latest">V2.4.26</span><span class="date">2026-09-29</span><span class="tag">最新</span></div>
+          <div class="top"><span class="v latest">V2.4.28</span><span class="date">2026-10-30</span><span class="tag">最新</span></div>
+          <ul>
+            <li>★ <b>WS1 代码审查：修 4 个真缺陷</b>（纯质量层，不引入新攻击面、不碰内核）。V2.4.27 出包后真机从未跑过（设备桥不通），改为离线逐行审查，查出 4 个问题并在本版全部修掉。</li>
+            <li>① <b>必崩 → 早退</b>：<code>iosurfaceRead / iosurfaceWrite</code> 没检查 <code>IOSurfaceGetBaseAddress</code> 返回 <code>NULL</code>，直接空指针读 / <code>memcpy</code>（违反红线「只访问已映射区间」）。现补 <code>if(!base)</code> 早退：读路径返回 0 字节、写路径一个字节都不写。</li>
+            <li>② <b>语义错 → 令牌表 <code>gSurfLockTok</code></b>：3 处 <code>IOSurfaceUnlock</code> 传的是 <code>NULL</code> seed，而 iOS 的 <code>IOSurfaceUnlock(ref, options, seed*)</code> 第三参必须回传 Lock 那次拿到的 seed —— 原来解锁语义错、锁计数泄漏。现用 handle→栈 的令牌表配对（Lock 压栈 / Unlock 出栈原样回传 / release 一并清理；用栈而非单值，是因为 IOSurface 的 Lock <b>可嵌套</b>）。<b>省略 seed 也能正确解锁</b>，显式传则以显式值为准。</li>
+            <li>③ <b>不可观测 → 接 <code>ukr</code></b>：<code>IOSurfaceUnlock</code> 的返回值 3 处全被丢弃，解锁失败静默、后续 Lock 莫名失败无从排查。现 read / write 路径接住 <code>ukr</code> 并返回自解释错误串。</li>
+            <li>④ <b>桥表签名同步</b>：<code>iosurfaceUnlock</code> 的 JS 桥签名没跟上原生改动 —— <b>ObjC 少传参编译期不报错</b>，会静默错位。现改 <code>JSValue *seedV</code> 收（同时规避 V2.4.19 的 <code>undefined → NSNumber</code> 坑）。</li>
+            <li>★ <b>离线质量闸 22 项全绿</b>（无 clang 环境下的替代编译检查：括号配平 / seed 语义 / unlock 返回值 / base 空检 / 令牌栈一致性 / 桥表签名 / 版本号）。<b>二进制实证</b>：①②③ 三处修复指纹在包内命中（<code>_gSurfLockTok</code>、<code>IOSurfaceGetBaseAddress 返回 NULL（…）</code>、<code>IOSurfaceUnlock kr=%d（…）</code>），同样四条在 2.4.27 包里<b>全未命中</b>，判别力成立。</li>
+            <li>⚠ <b>取证铁律</b>：Mach-O 里 <code>@"..."</code> 含非 ASCII ⇒ 落 <code>__TEXT,__ustring</code>（<b>UTF-16LE</b>），用「整包 NUL 分块抽 UTF-8 串」会系统性漏检 —— 曾据此误判「包是旧代码」，改 UTF-16LE 后结论反转。</li>
+          </ul>
+        </div>
+        <div class="cl">
+          <div class="top"><span class="v" data-roll="V2.4.27">V2.4.27</span><span class="date">2026-10-23</span></div>
+          <ul>
+            <li>★ <b>WS1 · IOSurface 后备内存观测通道</b>：新增 5 个原生原语（<b>81 → 86</b>）—— <code>iosurfaceBaseAddress</code>（取 <code>{base, allocSize, rowBytes, bytesPerElement, width, height}</code>，不 Lock）、<code>iosurfaceLock</code> / <code>iosurfaceUnlock</code>（opts 省略 = ReadOnly，kr 由 JS 侧 <code>krWhy</code> 反查）、<code>iosurfaceRead</code>（内部 ReadOnly Lock → 边界检查 → hex → Unlock，输出同 <code>memRead</code>）、<code>iosurfaceWrite</code>（data 三形态 hex / <code>"b64:…"</code> / <code>{b64:"…"}</code>，同 <code>memWrite</code>）。</li>
+            <li><b>纯增量</b>：不碰 Create / 句柄语义，全部挂现有 <code>gSurfRegistry</code>（其 value 本来就是真 <code>IOSurfaceRef</code>）。read / write 的边界检查对着 <code>allocSize</code>，越界直接报错不 OOB（红线：只访问已映射区间）。</li>
+            <li>背景：<code>iosurfaceProbe</code> 早就能 memset 后备内存，但一直没暴露给 JS —— 本版把已有能力<b>安全</b>暴露出来，打通「surface 后备内存只读观测 + 后续 live 校验器验证」这条路。配套 <code>bridge_help.js</code> / <code>bridge_guard.js</code> 同步补条目。</li>
+            <li>★ <b>动态层新桥 <code>bridge_syscall.js</code></b>：<code>syscall(number, a, b, c, d)</code> 签名糖、<code>syscallRaw</code>、<code>syscallName</code>、<code>serrno</code> / <code>errnoName</code>、AF_SYSCTL 通路的 <code>sysctlSock</code>（纯 JS 层，<b>不新增原生原语</b>）。</li>
+            <li>⚠ 本版真机从未跑过（设备桥不通），随后的 V2.4.28 离线审查修掉了它的 4 个缺陷。</li>
+          </ul>
+        </div>
+        <div class="cl">
+        <div class="top"><span class="v" data-roll="V2.4.26">V2.4.26</span><span class="date">2026-09-29</span></div>
         <ul>
           <li>★ <b>远程连接模式补上本机日志 + 侧栏状态</b>：之前远程模式下 PC 推来的探针 / <code>print</code> 输出 / <code>result</code> 回传只发回 PC，本机面板看不到；现 iPad 端加环形日志缓冲，三处埋点（收到 <code>push_js</code> 代码、<code>print</code> 输出、<code>result</code> 回传）实时显示在「连接日志 / 执行输出」面板，与监听模式一致。</li>
           <li>★ <b>侧栏左下角状态镜像监听</b>：远程连接中显示「● 远程连接中」（琥珀）/ 已连接显示「● 远程已连接」（绿）/ 未开显示「● 未启动」（灰），不再像以前那样连上了仍灰着。</li>
@@ -706,7 +728,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.26</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.28</b></span>
   </div>
 </footer>
 
