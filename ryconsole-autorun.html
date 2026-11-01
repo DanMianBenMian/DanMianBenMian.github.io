@@ -520,7 +520,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     </div>
     <div class="cta">
       <a class="btn primary" href="#download">下载 Windows 工具</a>
-      <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2432/RyConsole-v2.4.32.ipa" download="RyConsole-v2.4.32.ipa">下载 iPad App（IPA）</a>
+      <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2433/RyConsole-v2.4.33.ipa" download="RyConsole-v2.4.33.ipa">下载 iPad App（IPA）</a>
     </div>
   </section>
 
@@ -648,9 +648,9 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
       <div class="card dl-card">
         <div class="no" data-roll="DL / 02">DL / 02</div>
         <h3 style="font-size:18px">RyConsole（iPhone / iPad 通用）</h3>
-        <p style="margin-bottom:14px">当前版本 V2.4.32 · 点下方「查看更新日志」看历代改动 →</p>
+        <p style="margin-bottom:14px">当前版本 V2.4.33 · 点下方「查看更新日志」看历代改动 →</p>
         <div class="btns">
-          <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2432/RyConsole-v2.4.32.ipa" download="RyConsole-v2.4.32.ipa">下载 IPA</a>
+          <a class="btn green" href="https://github.com/DanMianBenMian/RyConsole/releases/download/RyConsole-iPad-v2433/RyConsole-v2.4.33.ipa" download="RyConsole-v2.4.33.ipa">下载 IPA</a>
           <a class="btn violet" id="openChangelog" href="javascript:void(0)" role="button">查看更新日志</a>
         </div>
       </div>
@@ -671,9 +671,13 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <div class="modal">
       <button class="close" id="closeChangelog" aria-label="关闭">×</button>
       <h3>RyConsole 更新日志</h3>
-      <div class="sub">从 V2 到最新版 V2.4.32 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.32</b></div>
+      <div class="sub">从 V2 到最新版 V2.4.33 的历代改动 · 当前最新 <b style="color:#eafcff">V2.4.33</b></div>
       <div class="cl-body">
-        <div class="cl"><div class="top"><span class="v latest">V2.4.32</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+        <div class="cl"><div class="top"><span class="v latest">V2.4.33</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <ul><li>★ <b>链式 objc_msgSend 接收者悬垂 SIGSEGV</b>（帖 #20）：JSC 每次 native block 返回会 drain 内部 autorelease pool ⇒ <code>objc_msgSend</code> 返回的堆对象在两次调用之间被释放，拿它当接收者读 isa 当场崩。现用全局存活表保活到 eval 结束（四道门禁过滤标量/tagged）。</li>
+          <li>★ <b>UI 两修</b>：Autorun <code>/eval</code> 补 notify（跑完立刻显示「已回传」，不必切页）；构建镜像 <code>macos-15</code> → <b><code>macos-26</code></b>（恢复 Xcode 26.6 / iOS 26.5 SDK，液态玻璃材质回归）。</li>
+          <li>★ 版本 2.4.33 / build 73，未签名 IPA 需全能签侧载。</li></ul></div>
+<div class="cl"><div class="top"><span class="v" data-roll="V2.4.32">V2.4.32</span><span class="date">2026-11-01</span></div>
           <ul><li>★ <b>Fig 握手 raw xpc 注入</b>（CVE-2026-112706 跨沙盒读协议侧落地）：<b>不依赖任何私有/特权 entitlement</b>。新增 <code>xpcFigCreateMessage</code> / <code>xpcFigSetCFURL</code> / <code>xpcFigBeginEstablishing</code> / <code>xpcFigCreateRecipient</code> / <code>xpcRawRelease</code> + <code>xpcSendObj</code>，raw 指针仅认桥侧托管白名单（未登记→<code>__raw-not-managed</code>），reply 路径新增 <code>errDesc</code> 服务端错误描述透传。</li>
           <li>★ 版本 2.4.32 / build 72，未签名 IPA 需全能签侧载。</li></ul></div>
 <div class="cl"><div class="top"><span class="v" data-roll="V2.4.31">V2.4.31</span><span class="date">2026-11-01</span></div>
