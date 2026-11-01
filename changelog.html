@@ -506,7 +506,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 95 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.32</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 95 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.33</b>。</p>
   </section>
 
   <section class="reveal">
@@ -514,7 +514,21 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <div class="timeline">
 
       <div class="cl">
-          <div class="top"><span class="v latest">V2.4.32</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <div class="top"><span class="v latest">V2.4.33</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <ul>
+            <li>★ <b>桥缺陷：链式 objc_msgSend 接收者悬垂 SIGSEGV</b>（Ry-JB 论坛帖 #20）。用桥原生 <code>objc_msgSend</code> 做「造对象→发消息→再拿它当接收者」的链式调用时，第一个调用成功，但把<b>上一个调用返回的堆实例</b>当接收者再发一次消息 ⇒ 整个 eval 被 SIGSEGV 掀栈；0 参 <code>description</code>、1 参 <code>numberWithUnsignedInt:</code>/<code>arrayWithObject:</code>（接收者是类对象）全正常。</li>
+            <li>① <b>真因（真机 SIGSEGV 回溯坐实）</b>：JavaScriptCore 在<b>每次 native block 返回时</b>会 drain 自己的内部 autorelease pool，<code>objc_msgSend</code> 返回的 autoreleased 对象（如 <code>arrayWithObject:</code> 造出的 NSArray）在两次调用之间被释放 ⇒ 下次拿它的 hex 当接收者 → 悬垂指针 → 读 isa 当场崩。现象完全吻合：类对象（不释放）/ tagged pointer（非堆对象）接收者永远正常，只有「上一调用返回的堆实例」当接收者才崩。</li>
+            <li>② <b>修法</b>：新增全局存活表 <code>g_objcLiveHandles</code>，把返回的「真堆对象」retain 进去，<b>保活到本轮 eval 结束</b>（<code>RYExecStream</code> 结束时统一 drain）⇒ 不跨 eval 泄漏。</li>
+            <li>③ <b>四道门禁</b>（与 <code>objcDescNative</code> 同源的 <code>vm_read</code> 可读性判定）：高位非零（tagged pointer / 内核地址）→ 跳过、未 8 字节对齐 → 跳过、地址过低 → 跳过、<code>vm_read</code> 前 16 字节不可读 → 跳过 ⇒ 标量返回值（<code>count</code>/<code>length</code>/<code>intValue</code>）绝不会被误当对象 retain（那样反而会去解 isa 崩）。</li>
+            <li>★ 顺带订正一个旧误判：此前怀疑是「tagged pointer 非法解引用」——<b>源码证伪</b>（<code>objcHexFromPtr</code> 只做格式化，从不 deref）。这是 objc_msgSend 链式调用的<b>通用</b> bug，不止 ANE。</li>
+            <li>★ <b>UI Bug：Autorun 跑完仍显示 running</b>——<code>/eval</code> 同步路径状态置 done 后<b>漏了 notify</b>（<code>/submit</code> 本来就有）⇒ UI 收不到变更通知，必须切页才刷对。已补上，与 <code>/submit</code> 对称。</li>
+            <li>★ <b>UI Bug：液态玻璃回退成 iOS 18 扁平控件 —— 真因不在 UI 代码，在构建 SDK</b>。逐版解包 IPA 比对：2.4.26/2.4.27 = <code>DTXcode 2660 / iphoneos26.5</code>，2.4.28 起 = <code>DTXcode 1640 / iphoneos18.5</code>（断点 = 10-30 把构建镜像钉死 <code>macos-15</code>）。源码侧零证据：<code>MainShell.m</code> 自 2.4.26 未动、2.4.28→2.4.29 的 <code>main.m</code> diff 只有 iokit 相关、两版二进制里玻璃相关符号数全为 0 ⇒ 那效果<b>本来就是 iOS 26 SDK 下系统控件自带的材质</b>，SDK 一掉级材质就没了。已把构建镜像改回 <b><code>macos-26</code></b>（Xcode 26.6 / iOS 26.5 SDK），并在工作流加 SDK 自检，以后掉级立刻能从构建日志看出来。</li>
+            <li>★ 版本 2.4.33 / build 73，未签名 IPA 499,287 B，需全能签侧载。</li>
+            <li>⚠ <b>待真机验证</b>：① 堆 NSArray 上的 <code>description</code>/<code>count</code> 不再 SIGSEGV；② 完整链式脚本一气呵成；③ 随后重跑 ANE 端到端 PoC。</li>
+          </ul>
+        </div>
+<div class="cl">
+          <div class="top"><span class="v" data-roll="V2.4.32">V2.4.32</span><span class="date">2026-11-01</span></div>
           <ul>
             <li>★ <b>Fig 握手 raw xpc 注入 —— CVE-2026-112706 跨沙盒读协议侧落地</b>：Ry-JB 论坛帖 #19 方案 v2 实现。<b>全程不依赖任何私有 / 特权 entitlement</b>，只走正常签名 + 公开发行 API。</li>
             <li>① <b>raw xpc 对象注入</b>：<code>xpcFromObj</code> 支持 <code>{"__raw":"0x…"}</code> 直接把 <code>xpc_object_t</code> 塞进 xpc dict。<b>护栏 = 桥侧托管白名单</b>（<code>g_xpcRawReg</code> 存强引用保活，上限 256）：未登记的指针回 <code>__raw-not-managed</code>，杜绝野指针 retain 崩溃。</li>
@@ -770,7 +784,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.32</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.33</b></span>
   </div>
 </footer>
 
