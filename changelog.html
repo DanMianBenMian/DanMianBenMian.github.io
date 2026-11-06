@@ -506,7 +506,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   <section class="hero">
     <div class="tagline">CHANGELOG · 诚实记录每一个版本</div>
     <h1>RyConsole 更新日志</h1>
-    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 95 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.33</b>。</p>
+    <p class="lead">从 2026-07 的 v1 旧款，到 2026-09 全新的 V2 研究控制台（今天 95 个原生桥）的安全研究 harness —— 这里按版本记录每一次真实改动。最新版为 <b style="color:#eafcff">V2.4.34</b>。</p>
   </section>
 
   <section class="reveal">
@@ -514,7 +514,19 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
     <div class="timeline">
 
       <div class="cl">
-          <div class="top"><span class="v latest">V2.4.33</span><span class="date">2026-11-01</span><span class="tag">最新</span></div>
+          <div class="top"><span class="v latest">V2.4.34</span><span class="date">2026-11-06</span><span class="tag">最新</span></div>
+          <ul>
+            <li>★ <b>保活系统：引用计数修复</b>——<code>RYKeepAlive</code> 原为单例，<code>begin</code> 可重入但旧 <code>end</code> 无条件拆除 ⇒ 监听与远程同跑时互相拆掉对方的保活。改为 <code>activeRefs</code> 引用计数，递减到 0 才真正释放。</li>
+            <li>★ <b>灵动岛 WS/LP 标签错显</b>——<code>RemoteLiveActivity</code> 的 <code>mode</code> 只在 <code>start()</code> 设一次，WS 降级 LP 时不回写 ⇒ 灵动岛永远停在 WS。新增 <code>setMode</code> / <code>rmtSetMode</code> 单点回写，降级即纠成 LP。</li>
+            <li>★ <b>移除「监听与连接不可同时启用」限制</b>——删掉两处确认弹窗，两侧独立 start/stop；配合上述引用计数即可安全共存。</li>
+            <li>★ <b>WS 不再秒降长轮询</b>——<code>rmtConnectOnce</code> 给会话设了 <code>timeoutIntervalForRequest=20</code>，长连接空闲 20s 即被回收 → 触发重试耗尽 → 降级 LP。删除该设置，握手超时改由 12s <code>dispatch_after</code> 兜底。</li>
+            <li>★ <b>主 Tab 改液态玻璃</b>——自定义底栏改用 iOS 26 液态玻璃材质（<code>UIGlassEffect</code>，旧 SDK/系统回退毛玻璃）；<b>手机=正下方满宽</b>，<b>iPad 竖屏=底部右侧停靠浮岛</b>；带图标+文字。改名：终端 / Autorun / 设置 不变，第 4 个「资源管理器」→<b>「资源」</b>，第 5 个「权限与安全」→<b>「安全」</b>（页内标题保持不变）。</li>
+            <li>★ 版本 2.4.34 / build 74，未签名 IPA 500,052 B，需全能签侧载；构建环境 macos-26（Xcode 26.6 / iOS 26.5 SDK）。</li>
+            <li>⚠ <b>待真机验证</b>：① 监听+远程同开、后台保活互不拆；② 降级 LP 时灵动岛显示 LP；③ WS 直连不再秒降；④ 主 Tab 玻璃材质与右侧浮岛布局。</li>
+          </ul>
+        </div>
+<div class="cl">
+          <div class="top"><span class="v" data-roll="V2.4.33">V2.4.33</span><span class="date">2026-11-01</span></div>
           <ul>
             <li>★ <b>桥缺陷：链式 objc_msgSend 接收者悬垂 SIGSEGV</b>（Ry-JB 论坛帖 #20）。用桥原生 <code>objc_msgSend</code> 做「造对象→发消息→再拿它当接收者」的链式调用时，第一个调用成功，但把<b>上一个调用返回的堆实例</b>当接收者再发一次消息 ⇒ 整个 eval 被 SIGSEGV 掀栈；0 参 <code>description</code>、1 参 <code>numberWithUnsignedInt:</code>/<code>arrayWithObject:</code>（接收者是类对象）全正常。</li>
             <li>① <b>真因（真机 SIGSEGV 回溯坐实）</b>：JavaScriptCore 在<b>每次 native block 返回时</b>会 drain 自己的内部 autorelease pool，<code>objc_msgSend</code> 返回的 autoreleased 对象（如 <code>arrayWithObject:</code> 造出的 NSArray）在两次调用之间被释放 ⇒ 下次拿它的 hex 当接收者 → 悬垂指针 → 读 isa 当场崩。现象完全吻合：类对象（不释放）/ tagged pointer（非堆对象）接收者永远正常，只有「上一调用返回的堆实例」当接收者才崩。</li>
@@ -784,7 +796,7 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 <footer>
   <div class="inner">
     <span>© 2026 单面本面 · <a href="ryconsole-autorun.html">返回 Autorun 主页</a></span>
-    <span>当前最新：<b style="color:#eafcff">V2.4.33</b></span>
+    <span>当前最新：<b style="color:#eafcff">V2.4.34</b></span>
   </div>
 </footer>
 
