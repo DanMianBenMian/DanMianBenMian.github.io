@@ -566,11 +566,17 @@ body .totop{
    · html[data-lg="fallback"] ⇒ JS 判定不可用，只留毛玻璃
    ========================================================================== */
 
-/* 1) 毛玻璃底（基线 / 降级态） */
+/* 1) 毛玻璃底（基线 / 降级态）。背景模糊旋钮：blur 半径（用户设 2px，很轻，玻璃更通透） */
 body .card,
 body .contact{
-  -webkit-backdrop-filter:blur(20px) saturate(170%) brightness(106%);
-  backdrop-filter:blur(20px) saturate(170%) brightness(106%);
+  -webkit-backdrop-filter:blur(2px) saturate(170%) brightness(106%);
+  backdrop-filter:blur(2px) saturate(170%) brightness(106%);
+}
+
+/* 1.5) 投影旋钮（用户设 100 = 满强度悬浮阴影） */
+html[data-lg="on"] body .card,
+html[data-lg="on"] body .contact{
+  box-shadow:0 18px 40px -12px rgba(0,0,0,.55), 0 4px 12px -4px rgba(0,0,0,.35);
 }
 
 /* 2) 液态玻璃宿主：负层放在「自身背景之上、内容之下」，不用改子元素定位 */
@@ -581,7 +587,7 @@ body .lg-host > .lg-layer{
   pointer-events:none;
   border-radius:inherit;
   overflow:hidden;
-  opacity:.72;                /* 保住卡片原有深色调，同时透出折射 */
+  opacity:1;                  /* 通透旋钮 = 1：折射背景完全透出（max 通透） */
 }
 body .lg-host > .lg-layer > .lg-bg{
   position:absolute; z-index:0; pointer-events:none; overflow:hidden;
