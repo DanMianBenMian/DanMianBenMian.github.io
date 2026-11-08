@@ -559,6 +559,64 @@ body .totop{
   }
 }
 
+/* ==========================================================================
+   v2 · 大面积元素（卡片 / 联系块）：真·折射液态玻璃 + 能力降级
+   · 所有浏览器：先拿到 backdrop-filter 毛玻璃（这也是降级态）
+   · 支持 SVG 滤镜的浏览器：JS 叠加 .lg-layer（背景快照 + feDisplacementMap）
+   · html[data-lg="fallback"] ⇒ JS 判定不可用，只留毛玻璃
+   ========================================================================== */
+
+/* 1) 毛玻璃底（基线 / 降级态） */
+body .card,
+body .contact{
+  -webkit-backdrop-filter:blur(20px) saturate(170%) brightness(106%);
+  backdrop-filter:blur(20px) saturate(170%) brightness(106%);
+}
+
+/* 2) 液态玻璃宿主：负层放在「自身背景之上、内容之下」，不用改子元素定位 */
+body .lg-host{isolation:isolate}
+body .lg-host > .lg-layer{
+  position:absolute; inset:0;
+  z-index:-1;                 /* 父背景画完才轮到它，故不会被背景盖住 */
+  pointer-events:none;
+  border-radius:inherit;
+  overflow:hidden;
+  opacity:.72;                /* 保住卡片原有深色调，同时透出折射 */
+}
+body .lg-host > .lg-layer > .lg-bg{
+  position:absolute; z-index:0; pointer-events:none; overflow:hidden;
+}
+/* 克隆层里不需要扫光带，免得每份都在跑动画 */
+body .lg-host > .lg-layer > .lg-bg::after{display:none !important}
+/* 玻璃里比外面亮一点点：折射回来的光在玻璃内部被聚拢（也让掰弯的网格看得见） */
+body .lg-host > .lg-layer > .lg-bg::before{
+  background-image:
+    linear-gradient(rgba(56,189,248,.10) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(56,189,248,.10) 1px,transparent 1px);
+}
+
+/* 2.5) 边缘厚度高光：JS 生成的方向光位图，浮在快照之上、内容之下 */
+body .lg-host > .lg-spec{
+  position:absolute; inset:0;
+  z-index:-1;
+  pointer-events:none;
+  border-radius:inherit;
+  background-repeat:no-repeat;   /* 尺寸/位置由 JS 按 1:1 像素设置，勿用百分比拉伸 */
+  background-size:auto;
+  opacity:.92;
+  transition:opacity .35s ease;
+}
+body .lg-host:hover > .lg-spec{opacity:1}
+
+/* 3) 不覆盖卡片自身背景 —— 每页可能有各自的渐变/skin，玻璃层叠在上面就够；
+      这样降级态与液态玻璃态共用同一份底色，不会出现两套观感。 */
+
+/* 5) 移动端 / 窄屏不做折射（省电），只留毛玻璃 */
+@media (max-width:900px){
+  body .lg-host > .lg-layer,
+  body .lg-host > .lg-spec{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -1005,5 +1063,6 @@ body .totop{
   }
 })();
 </script>
+<script data-liquid-glass-js="1" defer src="/liquid-glass.js"></script>
 </body>
 </html>
