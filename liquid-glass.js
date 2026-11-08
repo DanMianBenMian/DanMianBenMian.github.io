@@ -36,7 +36,8 @@
     pad: 40,            // 快照外扩，避免位移把边缘拉出空洞（scale 大时必须够大）
     wide: 900,          // 视口宽度门槛（窄屏不做）
     rimW: 3.2,          // 边缘高光带宽度（像素）
-    rimA: 0.28          // 边缘高光强度 0~1 —— 用户设 28
+    rimA: 0.28,         // 边缘高光强度 0~1 —— 用户设 28
+    tint: 4             // 通透（白蒙层 α = 值/100）—— 用户设 4
   };
 
   var svgRoot = null, seq = 0;
@@ -187,8 +188,13 @@
       var spec = document.createElement('div');
       spec.className = 'lg-spec';
 
+      var tint = document.createElement('div');
+      tint.className = 'lg-tint';
+      tint.style.background = 'rgba(255,255,255,' + (CFG.tint / 100) + ')';
+
       el.insertBefore(spec, el.firstChild);     // 先插 spec，再插 layer ⇒ layer 在上
       el.insertBefore(layer, el.firstChild);
+      el.insertBefore(tint, spec);              // tint 夹在 layer 与 spec 之间：奶白蒙层罩在折射之上、高光之下
       el.classList.add('lg-host');
       el.dataset.lgDone = '1';
 
@@ -265,6 +271,7 @@
           }
           if (layer.parentNode) layer.parentNode.removeChild(layer);
           if (spec.parentNode) spec.parentNode.removeChild(spec);
+          if (tint.parentNode) tint.parentNode.removeChild(tint);
           el.classList.remove('lg-host');
           delete el.dataset.lgDone;
           el.__lg = null;
