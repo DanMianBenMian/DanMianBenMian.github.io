@@ -564,48 +564,26 @@ body .totop{
 }
 
 /* ==========================================================================
-   v2 · 大面积元素（卡片 / 联系块）：真·折射液态玻璃 + 能力降级
-   · 所有浏览器：先拿到 backdrop-filter 毛玻璃（这也是降级态）
-   · 支持 SVG 滤镜的浏览器：JS 叠加 .lg-layer（背景快照 + feDisplacementMap）
-   · html[data-lg="fallback"] ⇒ JS 判定不可用，只留毛玻璃
+   v2 · 大面积元素（卡片 / 联系块）：毛玻璃底 + 边缘厚度高光 + 悬浮投影
+   · 关折射：已移除 .lg-layer 位移层与 feDisplacementMap（不再做真折射）
+   · 高光与阴影保留：边缘厚度高光（JS 生成的 .lg-spec）+ 悬浮投影
+   · 仅大面积元素挂 .lg-spec；窄屏 / 降级态只留纯毛玻璃
    ========================================================================== */
 
-/* 1) 毛玻璃底（基线 / 降级态）。背景模糊旋钮：blur 半径（用户设 2px，很轻，玻璃更通透） */
+/* 1) 毛玻璃底（基线 / 降级态）。模糊提回毛玻璃级，让卡片像磨砂玻璃 */
 body .card,
 body .contact{
-  -webkit-backdrop-filter:blur(2px) saturate(170%) brightness(106%);
-  backdrop-filter:blur(2px) saturate(170%) brightness(106%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%) brightness(106%);
+  backdrop-filter:blur(16px) saturate(170%) brightness(106%);
 }
 
-/* 1.5) 投影旋钮（用户设 100 = 满强度悬浮阴影） */
-html[data-lg="on"] body .card,
-html[data-lg="on"] body .contact{
+/* 2) 悬浮投影（始终保留，不依赖液态玻璃态） */
+body .card,
+body .contact{
   box-shadow:0 18px 40px -12px rgba(0,0,0,.55), 0 4px 12px -4px rgba(0,0,0,.35);
 }
 
-/* 2) 液态玻璃宿主：负层放在「自身背景之上、内容之下」，不用改子元素定位 */
-body .lg-host{isolation:isolate}
-body .lg-host > .lg-layer{
-  position:absolute; inset:0;
-  z-index:-1;                 /* 父背景画完才轮到它，故不会被背景盖住 */
-  pointer-events:none;
-  border-radius:inherit;
-  overflow:hidden;
-  opacity:.85;                /* 透出折射背景，同时留一点卡片自身底（消除过透显空） */
-}
-body .lg-host > .lg-layer > .lg-bg{
-  position:absolute; z-index:0; pointer-events:none; overflow:hidden;
-}
-/* 克隆层里不需要扫光带，免得每份都在跑动画 */
-body .lg-host > .lg-layer > .lg-bg::after{display:none !important}
-/* 玻璃里比外面亮一点点：折射回来的光在玻璃内部被聚拢（也让掰弯的网格看得见） */
-body .lg-host > .lg-layer > .lg-bg::before{
-  background-image:
-    linear-gradient(rgba(56,189,248,.10) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(56,189,248,.10) 1px,transparent 1px);
-}
-
-/* 2.5) 边缘厚度高光：JS 生成的方向光位图，浮在快照之上、内容之下 */
+/* 3) 边缘厚度高光：JS 生成的方向光位图，浮在内容之下（保留“高光不变”） */
 body .lg-host > .lg-spec{
   position:absolute; inset:0;
   z-index:-1;
@@ -618,28 +596,15 @@ body .lg-host > .lg-spec{
 }
 body .lg-host:hover > .lg-spec{opacity:1}
 
-/* 2.6) 通透旋钮：白蒙层（demo 语义 α = 值/100）。3–4 ⇒ 极淡奶白，玻璃更"实"一点 */
-body .lg-host > .lg-tint{
-  position:absolute; inset:0;
-  z-index:-1;
-  pointer-events:none;
-  border-radius:inherit;
-  background:rgba(255,255,255,.04);
-}
-
-/* 3) 不覆盖卡片自身背景 —— 每页可能有各自的渐变/skin，玻璃层叠在上面就够；
-      这样降级态与液态玻璃态共用同一份底色，不会出现两套观感。 */
-
-/* 4) iOS 26 圆角：玻璃元素统一大圆角，对齐液态玻璃的连续圆角观感 */
-html[data-lg="on"] body .card,
-html[data-lg="on"] body .contact{
+/* 4) iOS 26 圆角（始终保留，对齐连续圆角观感） */
+body .card,
+body .contact{
   border-radius:24px;
 }
 body .btn{ border-radius:14px; }
 
-/* 5) 移动端 / 窄屏不做折射（省电），只留毛玻璃 */
+/* 5) 窄屏不做高光位图（省电），只留毛玻璃 */
 @media (max-width:900px){
-  body .lg-host > .lg-layer,
   body .lg-host > .lg-spec{display:none}
 }
 
