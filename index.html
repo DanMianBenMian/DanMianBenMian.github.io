@@ -598,7 +598,7 @@ body .lg-host > .lg-layer{
   pointer-events:none;
   border-radius:inherit;
   overflow:hidden;
-  opacity:1;                  /* 通透旋钮 = 1：折射背景完全透出（max 通透） */
+  opacity:.85;                /* 透出折射背景，同时留一点卡片自身底（消除过透显空） */
 }
 body .lg-host > .lg-layer > .lg-bg{
   position:absolute; z-index:0; pointer-events:none; overflow:hidden;
@@ -625,8 +625,24 @@ body .lg-host > .lg-spec{
 }
 body .lg-host:hover > .lg-spec{opacity:1}
 
+/* 2.6) 通透旋钮：白蒙层（demo 语义 α = 值/100）。3–4 ⇒ 极淡奶白，玻璃更"实"一点 */
+body .lg-host > .lg-tint{
+  position:absolute; inset:0;
+  z-index:-1;
+  pointer-events:none;
+  border-radius:inherit;
+  background:rgba(255,255,255,.04);
+}
+
 /* 3) 不覆盖卡片自身背景 —— 每页可能有各自的渐变/skin，玻璃层叠在上面就够；
       这样降级态与液态玻璃态共用同一份底色，不会出现两套观感。 */
+
+/* 4) iOS 26 圆角：玻璃元素统一大圆角，对齐液态玻璃的连续圆角观感 */
+html[data-lg="on"] body .card,
+html[data-lg="on"] body .contact{
+  border-radius:24px;
+}
+body .btn{ border-radius:14px; }
 
 /* 5) 移动端 / 窄屏不做折射（省电），只留毛玻璃 */
 @media (max-width:900px){
