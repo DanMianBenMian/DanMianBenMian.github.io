@@ -484,6 +484,86 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
 }
 
   </style>
+<style data-liquid-glass="1">
+/* ==========================================================================
+   液态玻璃层（liquid glass）—— 叠加在 skin 之上，不改动任何原有规则
+   四层：通透底（backdrop blur）/ 边缘厚度高光 / 内散射 / 悬浮投影
+   适用范围：顶栏 header、按钮 .btn、回到顶部 .totop
+   ========================================================================== */
+
+/* ---------- 1. 顶栏 ---------- */
+body header{
+  background:linear-gradient(180deg,
+    rgba(20,34,60,.50) 0%,
+    rgba(10,18,34,.58) 55%,
+    rgba(6,11,24,.68) 100%) !important;
+  -webkit-backdrop-filter:blur(32px) saturate(205%) brightness(110%) !important;
+  backdrop-filter:blur(32px) saturate(205%) brightness(110%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),              /* 顶缘厚度：一道细白高光 */
+    inset 0 16px 28px -20px rgba(140,205,255,.26),    /* 顶部内散射：玻璃受光的柔光 */
+    inset 0 -20px 26px -24px rgba(0,0,0,.60),         /* 底缘内暗：厚度阴影 */
+    0 14px 36px -18px rgba(0,0,0,.90) !important;     /* 悬浮：和外层拉开距离 */
+}
+/* 顶栏光泽：顶部径向高光 + 上亮下暗的柱面感 + 左右冷光不均（让边缘读成曲面） */
+body header::after{
+  background:
+    radial-gradient(140% 200% at 50% -120%,rgba(255,255,255,.24),transparent 58%),
+    linear-gradient(180deg,rgba(255,255,255,.09) 0%,transparent 44%,rgba(0,0,0,.22) 100%),
+    linear-gradient(90deg,rgba(120,200,255,.10),transparent 34%,transparent 66%,rgba(120,200,255,.05)) !important;
+}
+
+/* ---------- 2. 按钮 ---------- */
+body .btn{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),              /* 顶缘高光 */
+    inset 0 -1px 0 rgba(0,0,0,.30),                   /* 底缘暗边 */
+    0 6px 18px -10px rgba(0,0,0,.70) !important;
+}
+/* 主按钮自带蓝色发光，单独补一份（否则 !important 会把它抹掉） */
+body .btn.primary{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.45),
+    inset 0 -1px 0 rgba(0,0,0,.22),
+    0 6px 26px rgba(var(--glow),.32) !important;
+}
+body .btn:hover{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.32),
+    inset 0 -1px 0 rgba(0,0,0,.28),
+    0 12px 28px -12px rgba(56,189,248,.45) !important;
+}
+body .btn.primary:hover{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 -1px 0 rgba(0,0,0,.20),
+    0 10px 32px rgba(var(--glow),.48) !important;
+}
+
+/* ---------- 3. 回到顶部 ---------- */
+body .totop{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 10px 26px -14px rgba(0,0,0,.85) !important;
+}
+
+/* ---------- 4. 移动端轻量版（保留原“省电”意图：模糊更轻、少一层内散射） ---------- */
+@media (max-width:640px){
+  body header{
+    background:linear-gradient(180deg,
+      rgba(20,34,60,.56) 0%,
+      rgba(10,18,34,.62) 55%,
+      rgba(6,11,24,.72) 100%) !important;
+    -webkit-backdrop-filter:blur(22px) saturate(180%) brightness(107%) !important;
+    backdrop-filter:blur(22px) saturate(180%) brightness(107%) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.16),
+      inset 0 -1px 0 rgba(56,189,248,.18),
+      0 10px 26px -18px rgba(0,0,0,.85) !important;
+  }
+}
+
+</style>
 </head>
 <body>
 
