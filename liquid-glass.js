@@ -172,106 +172,42 @@
     return c;
   }
 
-  /* ---------- 6. 单个元素的增强 / 还原 ---------- */
+  /* ---------- 6. 单个元素的增强 / 还原（仅边缘高光，关折射） ---------- */
   function attach(el) {
     if (el.__lg || el.dataset.lgDone === '1') return;
     var w = el.clientWidth, h = el.clientHeight;
     if (w < CFG.minW || h < CFG.minH) return;
-    var clone = makeBgClone();
-    if (!clone) return;
 
     try {
-      var layer = document.createElement('div');
-      layer.className = 'lg-layer';
-      layer.appendChild(clone);
-
       var spec = document.createElement('div');
       spec.className = 'lg-spec';
-
-      var tint = document.createElement('div');
-      tint.className = 'lg-tint';
-      tint.style.background = 'rgba(255,255,255,' + (CFG.tint / 100) + ')';
-
-      el.insertBefore(spec, el.firstChild);     // 先插 spec，再插 layer ⇒ layer 在上
-      el.insertBefore(layer, el.firstChild);
-      el.insertBefore(tint, spec);              // tint 夹在 layer 与 spec 之间：奶白蒙层罩在折射之上、高光之下
+      el.insertBefore(spec, el.firstChild);
       el.classList.add('lg-host');
       el.dataset.lgDone = '1';
-
-      var state = { layer: layer, spec: spec, clone: clone, fid: null, raf: 0 };
-
-      function sync() {
-        var r = el.getBoundingClientRect();
-        clone.style.left = (-r.left) + 'px';
-        clone.style.top = (-r.top) + 'px';
-      }
 
       function build() {
         var ww = el.clientWidth, hh = el.clientHeight;
         if (ww < 2 || hh < 2) return;
         var r = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
-        var band = Math.min(CFG.band, Math.min(ww, hh) * 0.30);
-        var map = makeMap(ww, hh, r, band, CFG.pad);
-        if (state.fid) {
-          var old = document.getElementById(state.fid);
-          if (old && old.parentNode) old.parentNode.removeChild(old);
-        }
-        state.fid = buildFilter(map, CFG.scale);
-        layer.style.filter = 'url(#' + state.fid + ')';
-        // 位移后边缘会被拉开，用圆角裁剪兜住
-        layer.style.clipPath = 'inset(0 round ' + r + 'px)';
-        layer.style.webkitClipPath = 'inset(0 round ' + r + 'px)';
-
         var sw = ww + CFG.pad * 2, sh = hh + CFG.pad * 2;
         spec.style.backgroundImage = 'url(' + makeSpec(ww, hh, r, CFG.rimW, CFG.pad, CFG.rimA) + ')';
         spec.style.backgroundSize = sw + 'px ' + sh + 'px';
         spec.style.backgroundPosition = (-CFG.pad) + 'px ' + (-CFG.pad) + 'px';
-        sync();
       }
 
-      // hover 时卡片有 translateY，clone 需要跟着重新对齐
-      function track(ms) {
-        var end = Date.now() + ms;
-        cancelAnimationFrame(state.raf);
-        (function step() {
-          sync();
-          if (Date.now() < end) state.raf = requestAnimationFrame(step);
-        })();
-      }
-      var onEnter = function () { track(420); };
-      var onLeave = function () { track(420); };
-
-      el.addEventListener('mouseenter', onEnter);
-      el.addEventListener('mouseleave', onLeave);
-      window.addEventListener('scroll', sync, { passive: true });
-      window.addEventListener('resize', onResize);
-
-      function onResize() {
-        clone.style.width = window.innerWidth + 'px';
-        clone.style.height = window.innerHeight + 'px';
+      var onResize = function () {
         clearTimeout(el.__lgT);
         el.__lgT = setTimeout(build, 160);
-      }
-
+      };
+      window.addEventListener('resize', onResize);
       build();
 
       el.__lg = {
         build: build,
-        sync: sync,
         destroy: function () {
-          el.removeEventListener('mouseenter', onEnter);
-          el.removeEventListener('mouseleave', onLeave);
-          window.removeEventListener('scroll', sync);
           window.removeEventListener('resize', onResize);
-          cancelAnimationFrame(state.raf);
           clearTimeout(el.__lgT);
-          if (state.fid) {
-            var f = document.getElementById(state.fid);
-            if (f && f.parentNode) f.parentNode.removeChild(f);
-          }
-          if (layer.parentNode) layer.parentNode.removeChild(layer);
           if (spec.parentNode) spec.parentNode.removeChild(spec);
-          if (tint.parentNode) tint.parentNode.removeChild(tint);
           el.classList.remove('lg-host');
           delete el.dataset.lgDone;
           el.__lg = null;
