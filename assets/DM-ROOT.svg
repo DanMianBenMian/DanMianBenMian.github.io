@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- DM-ROOT icon | DM italic + vertically offset + STATIC-BAKED liquid glass.
+       Refraction displacement is precomputed in the generator as fixed scale/offset.
+       No <filter>, no feDisplacementMap, no <script>, no <animate>: nothing is
+       recomputed or redrawn at runtime. PNG/ICO are per-pixel baked bitmaps. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#0A3480"/>
+      <stop offset="0.40" stop-color="#1870CC"/>
+      <stop offset="0.76" stop-color="#4EB4EC"/>
+      <stop offset="1"    stop-color="#96DCF8"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFF8E4" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#FFF8E4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glassTint" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0"    stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="0.55" stop-color="#EAF6FF" stop-opacity="0.13"/>
+      <stop offset="1"    stop-color="#9CC9F2" stop-opacity="0.25"/>
+    </linearGradient>
+    <!-- Static prism dispersion across the glyphs: precomputed gradient, no shader -->
+    <linearGradient id="prism" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0"    stop-color="#FFD9E8" stop-opacity="0.24"/>
+      <stop offset="0.34" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="0.70" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="1"    stop-color="#B6E4FF" stop-opacity="0.28"/>
+    </linearGradient>
+    <clipPath id="round"><rect width="1024" height="1024" rx="224"/></clipPath>
+
+    <g id="bg">
+      <rect width="1024" height="1024" fill="url(#sky)"/>
+      <circle cx="856" cy="196" r="170" fill="url(#sun)"/>
+      <circle cx="856" cy="196" r="44" fill="#F8FDFF" opacity="0.89"/>
+      <path d="M0 730 C29.2 716.0 118.3 649.0 175 646 C231.7 643.0 282.5 718.7 340 712 C397.5 705.3 460.0 608.0 520 606 C580.0 604.0 642.0 695.3 700 700 C758.0 704.7 814.0 635.0 868 634 C922.0 633.0 998.0 684.0 1024 694 L1024 1024 L0 1024 Z" fill="#4898D8"/>
+      <path d="M0 842 C34.2 830.3 137.5 770.3 205 772 C272.5 773.7 337.2 855.3 405 852 C472.8 848.7 542.5 754.3 612 752 C681.5 749.7 753.3 833.0 822 838 C890.7 843.0 990.3 791.3 1024 782 L1024 1024 L0 1024 Z" fill="#0F4894"/>
+    </g>
+
+    <!-- DM: italic (skewX(-12) around each letter centre) + D up / M down -->
+    <g id="dmText" font-family="Segoe UI, Arial, Helvetica, sans-serif"
+       font-weight="700" font-size="333" text-anchor="middle"
+       dominant-baseline="central">
+      <text x="370" y="318" transform="translate(370,318) skewX(-12) translate(-370,-318)">D</text>
+      <text x="654" y="426" transform="translate(654,426) skewX(-12) translate(-654,-426)">M</text>
+    </g>
+    <clipPath id="dmClip">
+      <text x="370" y="318" font-family="Segoe UI, Arial, Helvetica, sans-serif"
+            font-weight="700" font-size="333" text-anchor="middle"
+            dominant-baseline="central"
+            transform="translate(370,318) skewX(-12) translate(-370,-318)">D</text>
+      <text x="654" y="426" font-family="Segoe UI, Arial, Helvetica, sans-serif"
+            font-weight="700" font-size="333" text-anchor="middle"
+            dominant-baseline="central"
+            transform="translate(654,426) skewX(-12) translate(-654,-426)">M</text>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <use href="#bg" xlink:href="#bg"/>
+
+    <!-- 4. Static shadow: fixed multi-layer offsets (no blur filter at runtime) -->
+    <use href="#dmText" xlink:href="#dmText" fill="#062A56" opacity="0.10"
+         transform="translate(11,19)"/>
+    <use href="#dmText" xlink:href="#dmText" fill="#062A56" opacity="0.08"
+         transform="translate(6,11)"/>
+
+    <!-- 2. Refraction: precomputed 1.075x magnified background, clipped to glyphs -->
+    <g clip-path="url(#dmClip)">
+      <use href="#bg" xlink:href="#bg"
+           transform="translate(512,372) scale(1.09) translate(-512,-372)"/>
+      <!-- 1. Translucent glass body + baked prism dispersion -->
+      <rect width="1024" height="1024" fill="url(#glassTint)"/>
+      <rect width="1024" height="1024" fill="url(#prism)"/>
+      <!-- 3. Back-lit dark rim / front-lit bright rim / thin specular arc -->
+      <use href="#dmText" xlink:href="#dmText" fill="none"
+           stroke="#0A2E63" stroke-opacity="0.42" stroke-width="14"
+           transform="translate(7,9)"/>
+      <use href="#dmText" xlink:href="#dmText" fill="none"
+           stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="16"
+           transform="translate(-7,-9)"/>
+      <use href="#dmText" xlink:href="#dmText" fill="none"
+           stroke="#FFFFFF" stroke-opacity="0.95" stroke-width="4"
+           transform="translate(-12,-15)"/>
+    </g>
+
+    <rect x="8" y="8" width="1008" height="1008" rx="216"
+          fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="2"/>
+  </g>
+</svg>
