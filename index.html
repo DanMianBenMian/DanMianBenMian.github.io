@@ -496,7 +496,8 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   body .progress{transform:scaleX(1)!important}   /* 不许动的地方就整条显示，别空着 */
 }
 
-  </style>
+  </style>
+
 <style data-skin="menubar">
 /* iOS 26 横向玻璃分类菜单：固定在顶栏内（sticky），继承 header 毛玻璃；选中项=磨砂透镜 */
 body .menubar{position:relative;z-index:1;max-width:var(--maxw);margin:2px auto 0;
@@ -645,6 +646,7 @@ body .btn{ border-radius:14px; }
 }
 
 </style>
+<style id="smooth-scroll">html{scroll-behavior:smooth;scroll-padding-top:112px}</style>
 </head>
 <body>
 
@@ -660,8 +662,8 @@ body .btn{ border-radius:14px; }
   </nav>
     <nav class="menubar" aria-label="本页导航">
     <div class="menubar-scroll">
-      <a class="mbtn active" href="#products">做的东西</a>
-      <a class="mbtn" href="#research">在啃的东西</a>
+      <a class="mbtn active" href="#products">产品</a>
+      <a class="mbtn" href="#research">文档</a>
       <a class="mbtn" href="#contact">联系</a>
     </div>
   </nav>
@@ -692,7 +694,7 @@ body .btn{ border-radius:14px; }
   <!-- ============ 产品 ============ -->
   <section id="products" class="reveal">
     <div class="sec-no" data-roll="01">01</div>
-    <h2>做的东西</h2>
+    <h2>产品</h2>
     <p class="lede">两个能真跑起来的工具：一个把网页作品打包成 App，一个把 JS 探针送进 iPad 跑。</p>
     <div class="cards">
 
@@ -718,7 +720,7 @@ body .btn{ border-radius:14px; }
   <!-- ============ 研究 ============ -->
   <section id="research" class="reveal">
     <div class="sec-no" data-roll="02">02</div>
-    <h2>在啃的东西</h2>
+    <h2>文档</h2>
     <p class="lede">都是纸上先跑通、再上真机验的那种活儿。研究只用于学习，不产出任何自研漏洞利用。</p>
     <div class="cards">
 
