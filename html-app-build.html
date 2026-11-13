@@ -646,22 +646,17 @@ body .btn{ border-radius:14px; }
       <img class="brand-mark" src="/assets/DM-ROOT.png" alt="DM-ROOT" width="28" height="28">
       单面本面
     </a>
-    <div class="links">
-      <a href="index.html">主页</a>
-      <a href="#download">下载</a>
-    </div>
-  </nav
-  <nav class="menubar" aria-label="分类">
+  </nav>
+  <nav class="menubar" aria-label="本页导航">
     <div class="menubar-scroll">
-      <a class="mbtn" href="/index.html">主页</a>
-      <a class="mbtn active" href="/html-app-build.html">软件</a>
-      <a class="mbtn" href="/ryconsole-autorun.html">RyConsole</a>
-      <a class="mbtn" href="/changelog.html">更新日志</a>
-      <a class="mbtn" href="/research/index.html">研究</a>
-      <a class="mbtn" href="/index.html#contact">联系</a>
+      <a class="mbtn active" href="#what">这是什么</a>
+      <a class="mbtn" href="#features">能做什么</a>
+      <a class="mbtn" href="#howto">怎么用</a>
+      <a class="mbtn" href="#notes">注意事项</a>
+      <a class="mbtn" href="#download">下载</a>
     </div>
   </nav>
->
+  <script>(function(){try{var btns=[].slice.call(document.querySelectorAll('.menubar .mbtn'));if(!btns.length)return;var map=btns.map(function(b){var h=b.getAttribute('href');if(h&&h.charAt(0)==='#'){var el=document.getElementById(h.slice(1));return el?{b:b,el:el}:null;}return null;}).filter(Boolean);if(!map.length)return;function absTop(el){return el.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop||0);}function update(){var sc=window.pageYOffset||document.documentElement.scrollTop||0;var probe=sc+140;var cur=map[0];for(var i=0;i<map.length;i++){if(absTop(map[i].el)<=probe)cur=map[i];}if(sc+window.innerHeight>=(document.documentElement.scrollHeight-4))cur=map[map.length-1];for(var j=0;j<map.length;j++){map[j].b.classList.remove('active');}if(cur)cur.b.classList.add('active');}var ticking=false;function onScroll(){if(!ticking){ticking=true;window.requestAnimationFrame(function(){ticking=false;update();});}}window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);update();}catch(e){}})();</script>
 </header>
 
 <main>
@@ -678,7 +673,7 @@ body .btn{ border-radius:14px; }
   </section>
 
   <!-- ================= 这是什么 ================= -->
-  <section class="reveal">
+  <section id="what" class="reveal">
     <h2>这是什么</h2>
     <p class="body">
       很多学过图形化编程的人，做出来的作品只能停留在浏览器里。Html App Build 做的事很简单：
@@ -689,7 +684,7 @@ body .btn{ border-radius:14px; }
   </section>
 
   <!-- ================= 能做什么 ================= -->
-  <section class="reveal">
+  <section id="features" class="reveal">
     <h2>能做什么</h2>
     <div class="cards">
       <div class="card">
@@ -726,7 +721,7 @@ body .btn{ border-radius:14px; }
   </section>
 
   <!-- ================= 怎么用 ================= -->
-  <section class="reveal">
+  <section id="howto" class="reveal">
     <h2>怎么用</h2>
     <ol class="steps">
       <li>从 TurboWarp / Scratch 把作品<b>打包成 .html</b>（含全部资源、单文件最好）。</li>
@@ -742,7 +737,7 @@ body .btn{ border-radius:14px; }
   </section>
 
   <!-- ================= 注意事项 ================= -->
-  <section class="reveal">
+  <section id="notes" class="reveal">
     <h2>注意事项（说实话）</h2>
     <p class="body">
       它是「网页套壳 App」，不是把图形化逻辑重写成本地原生代码。好处是<b>简单、快、零环境</b>；
