@@ -670,7 +670,7 @@ body .btn{ border-radius:14px; }
       <a class="mbtn" href="#附录-C-术语表">附录C</a>
     </div>
   </nav>
-  <script>(function(){try{var btns=[].slice.call(document.querySelectorAll('.menubar .mbtn'));if(!btns.length)return;var map=btns.map(function(b){var h=b.getAttribute('href');if(h&&h.charAt(0)==='#'){var el=document.getElementById(h.slice(1));return el?{b:b,el:el}:null;}return null;}).filter(Boolean);if(!map.length)return;function absTop(el){return el.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop||0);}function update(){var sc=window.pageYOffset||document.documentElement.scrollTop||0;var probe=sc+140;var cur=map[0];for(var i=0;i<map.length;i++){if(absTop(map[i].el)<=probe)cur=map[i];}if(sc+window.innerHeight>=(document.documentElement.scrollHeight-4))cur=map[map.length-1];for(var j=0;j<map.length;j++){map[j].b.classList.remove('active');}if(cur)cur.b.classList.add('active');}var ticking=false;function onScroll(){if(!ticking){ticking=true;window.requestAnimationFrame(function(){ticking=false;update();});}}window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);update();}catch(e){}})();</script>
+  
 </header>
 
 <main>
@@ -1050,5 +1050,45 @@ machdep.cpu.core_count        → EPERM</code></pre>
 })();
 </script>
 <script data-liquid-glass-js="1" defer src="/liquid-glass.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){try{
+var doc=document.getElementById('doc-start');if(!doc)return;
+var h2s=[].slice.call(doc.querySelectorAll('h2[id]'));if(h2s.length<2)return;
+var st=document.createElement('style');
+st.textContent='.docpage{display:none}.docpage.is-on{display:block;animation:docfade .35s ease}'
++'.docpager{display:flex;gap:14px;align-items:center;justify-content:center;margin:30px 0 6px;padding:13px 16px;'
++'border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);'
++'-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}'
++'.docpager .pgbtn{padding:8px 18px;border-radius:980px;border:1px solid rgba(255,255,255,.16);'
++'background:rgba(255,255,255,.07);color:var(--paper);cursor:pointer;font-size:14px;font-weight:500;letter-spacing:.02em}'
++'.docpager .pgbtn:hover{background:rgba(255,255,255,.14)}'
++'.docpager .pgbtn:disabled{opacity:.35;cursor:default}'
++'.docpager .pgind{font-size:14px;color:var(--dim);min-width:64px;text-align:center}';
+document.head.appendChild(st);
+var pages=[];
+for(var i=0;i<h2s.length;i++){var start=h2s[i],end=h2s[i+1]||null,wrap=document.createElement('div');
+wrap.className='docpage';var n=start,move=[];while(n&&n!==end){move.push(n);n=n.nextSibling;}
+move.forEach(function(x){wrap.appendChild(x);});doc.appendChild(wrap);pages.push(wrap);}
+var nav=document.createElement('div');nav.className='docpager';
+nav.innerHTML='<button class="pgbtn" id="doc-prev">← 上一页</button>'
++'<span class="pgind" id="doc-ind">1 / '+pages.length+'</span>'
++'<button class="pgbtn" id="doc-next">下一页 →</button>';
+doc.appendChild(nav);
+var btns=[].slice.call(document.querySelectorAll('.menubar .mbtn'));
+var cur=0;
+function show(idx){cur=Math.max(0,Math.min(pages.length-1,idx));
+pages.forEach(function(p,i){p.classList.toggle('is-on',i===cur);});
+var aid=pages[cur].querySelector('h2').id;
+btns.forEach(function(b){b.classList.toggle('active',b.getAttribute('href')==='#'+aid);});
+document.getElementById('doc-ind').textContent=(cur+1)+' / '+pages.length;
+document.getElementById('doc-prev').disabled=(cur===0);
+document.getElementById('doc-next').disabled=(cur===pages.length-1);
+window.scrollTo(0,0);}
+btns.forEach(function(b){b.addEventListener('click',function(e){var h=b.getAttribute('href');
+if(h&&h.charAt(0)==='#'){var el=document.getElementById(h.slice(1));
+if(el){var k=-1;for(var j=0;j<pages.length;j++){if(pages[j].contains(el)){k=j;break;}}if(k>=0){e.preventDefault();show(k);}}}});});
+document.getElementById('doc-prev').addEventListener('click',function(){show(cur-1);});
+document.getElementById('doc-next').addEventListener('click',function(){show(cur+1);});
+show(0);
+}catch(e){}});</script>
 </body>
 </html>
