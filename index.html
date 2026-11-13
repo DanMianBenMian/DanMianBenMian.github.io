@@ -496,7 +496,30 @@ body .totop:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(var(--g
   body .progress{transform:scaleX(1)!important}   /* 不许动的地方就整条显示，别空着 */
 }
 
-  </style>
+  </style>
+<style data-skin="menubar">
+/* iOS 26 横向玻璃分类菜单：固定在顶栏内（sticky），继承 header 毛玻璃；选中项=磨砂透镜 */
+body .menubar{position:relative;z-index:1;max-width:var(--maxw);margin:2px auto 0;
+  padding:0 22px 11px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center}
+body .menubar-scroll{display:flex;align-items:center;gap:6px;width:100%;
+  overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+body .menubar-scroll::-webkit-scrollbar{display:none}
+body .mbtn{flex:0 0 auto;scroll-snap-align:start;position:relative;
+  padding:7px 15px;border-radius:980px;font-size:14px;font-weight:500;letter-spacing:.01em;
+  color:var(--dim);text-decoration:none;white-space:nowrap;
+  border:1px solid transparent;transition:color .25s,background .25s,border-color .25s}
+body .mbtn:hover{color:var(--paper)}
+body .mbtn.active{color:var(--paper);
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.05));
+  border-color:rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 2px 10px -2px rgba(0,0,0,.45);
+  -webkit-backdrop-filter:blur(10px) saturate(180%);backdrop-filter:blur(10px) saturate(180%)}
+@media (max-width:640px){
+  body .menubar{padding:0 16px 9px}
+  body .mbtn{padding:6px 13px;font-size:13px}
+}
+</style>
+
 <style data-liquid-glass="1">
 /* ==========================================================================
    液态玻璃层（liquid glass）—— 叠加在 skin 之上，不改动任何原有规则
@@ -639,7 +662,18 @@ body .btn{ border-radius:14px; }
       <a href="#research">研究</a>
       <a href="#contact">联系</a>
     </div>
+  </nav
+  <nav class="menubar" aria-label="分类">
+    <div class="menubar-scroll">
+      <a class="mbtn active" href="/index.html">主页</a>
+      <a class="mbtn" href="/html-app-build.html">软件</a>
+      <a class="mbtn" href="/ryconsole-autorun.html">RyConsole</a>
+      <a class="mbtn" href="/changelog.html">更新日志</a>
+      <a class="mbtn" href="/research/index.html">研究</a>
+      <a class="mbtn" href="/index.html#contact">联系</a>
+    </div>
   </nav>
+>
 </header>
 
 <main>
