@@ -651,23 +651,14 @@ body .btn{ border-radius:14px; }
       <img class="brand-mark" src="/assets/DM-ROOT.png" alt="DM-ROOT" width="28" height="28">
       单面本面
     </a>
-    <div class="links">
-      <a href="#products">产品</a>
-      <a href="index.html" class="on">研究文档</a>
-      <a href="#contact">联系</a>
-    </div>
-  </nav
-  <nav class="menubar" aria-label="分类">
+  </nav>
+  <nav class="menubar" aria-label="本页导航">
     <div class="menubar-scroll">
-      <a class="mbtn" href="/index.html">主页</a>
-      <a class="mbtn" href="/html-app-build.html">软件</a>
-      <a class="mbtn" href="/ryconsole-autorun.html">RyConsole</a>
-      <a class="mbtn" href="/changelog.html">更新日志</a>
-      <a class="mbtn active" href="/research/index.html">研究</a>
-      <a class="mbtn" href="/index.html#contact">联系</a>
+      <a class="mbtn active" href="#research">文档列表</a>
+      <a class="mbtn" href="#contact">联系</a>
     </div>
   </nav>
->
+  <script>(function(){try{var btns=[].slice.call(document.querySelectorAll('.menubar .mbtn'));if(!btns.length)return;var map=btns.map(function(b){var h=b.getAttribute('href');if(h&&h.charAt(0)==='#'){var el=document.getElementById(h.slice(1));return el?{b:b,el:el}:null;}return null;}).filter(Boolean);if(!map.length)return;function absTop(el){return el.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop||0);}function update(){var sc=window.pageYOffset||document.documentElement.scrollTop||0;var probe=sc+140;var cur=map[0];for(var i=0;i<map.length;i++){if(absTop(map[i].el)<=probe)cur=map[i];}if(sc+window.innerHeight>=(document.documentElement.scrollHeight-4))cur=map[map.length-1];for(var j=0;j<map.length;j++){map[j].b.classList.remove('active');}if(cur)cur.b.classList.add('active');}var ticking=false;function onScroll(){if(!ticking){ticking=true;window.requestAnimationFrame(function(){ticking=false;update();});}}window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);update();}catch(e){}})();</script>
 </header>
 
 <main>
